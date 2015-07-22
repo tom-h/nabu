@@ -1,10 +1,11 @@
 class ItemsController < ApplicationController
+  include Hashie
   include HasReturnToLastSearch
 
   before_filter :tidy_params, :only => [:create, :update, :bulk_update]
-  load_and_authorize_resource :collection, :find_by => :identifier, :except => [:return_to_last_search, :search, :advanced_search, :bulk_update, :bulk_edit, :new_report, :send_report, :report_sent]
-  load_and_authorize_resource :item, :find_by => :identifier, :through => :collection, :except => [:return_to_last_search, :search, :advanced_search, :bulk_update, :bulk_edit, :new_report, :send_report, :report_sent]
-  authorize_resource :only => [:advanced_search, :bulk_update, :bulk_edit, :new_report, :send_report, :report_sent]
+  load_and_authorize_resource :collection, :find_by => :identifier, :except => [:return_to_last_search, :search, :advanced_search, :new_advanced_search, :bulk_update, :bulk_edit, :new_report, :send_report, :report_sent]
+  load_and_authorize_resource :item, :find_by => :identifier, :through => :collection, :except => [:return_to_last_search, :search, :advanced_search, :new_advanced_search, :bulk_update, :bulk_edit, :new_report, :send_report, :report_sent]
+  authorize_resource :only => [:advanced_search, :new_advanced_search, :bulk_update, :bulk_edit, :new_report, :send_report, :report_sent]
 
   def search
     if params[:clear]
@@ -41,8 +42,18 @@ class ItemsController < ApplicationController
     end
   end
 
+  # this basically exists to take a POST and then parse the dynamic structure into standard params
+  def new_advanced_search
+    redirect_to advanced_search_items_path(new_search: true, filters: parse_dynamic_query(params[:query]))
+  end
+
   def advanced_search
-    do_search
+    puts params.inspect
+    if params[:new_search]
+      do_new_search
+    else
+      do_search
+    end
   end
 
   def new
@@ -343,5 +354,96 @@ class ItemsController < ApplicationController
     data = render_to_string :template => 'items/catalog_export.xml.haml', locals: {item: item}
 
     ItemCatalogService.new(item).save_file(data)
+  end
+
+  #TODO: work out how to deal with a) recursion and b) select2 not populating the rules client-side
+  def parse_dynamic_query(query)
+    filters = query.is_a?(String) ? JSON.parse(query) : query
+    conditions = []
+
+    filters.each do |filter|
+      condition = {}
+
+      if filter['condition'].is_a? Array
+        condition['type'] = 'group'
+        condition['value'] = filter['logical_operator']
+        condition['conditions'] = parse_dynamic_query(filter['condition'])
+      else
+        condition['type'] = 'field'
+        condition['field'] = filter['condition']['field']
+        condition['operator'] = filter['condition']['operator']
+        condition['value'] = filter['condition']['filterValue']
+      end
+
+      conditions << condition
+    end
+
+    puts conditions.inspect
+
+    conditions
+  end
+
+  def do_new_search
+    @search = Item.solr_search do |search|
+      filters_for(search, params[:filters])
+
+      sort_column(Item).each do |c|
+        search.order_by c, sort_direction
+      end
+      search.paginate :page => params[:page], :per_page => params[:per_page]
+    end
+  end
+
+  def filters_for(search, conditions)
+    conditions.each do |filter|
+      value = filter['value'][0].split(',')
+      case filter['type']
+      when 'group'
+        if filter['conditions']
+          case filter['value']
+            when 'AND'
+              search.all_of do
+                filters_for(search, filter['conditions'])
+              end
+            else #OR
+              search.any_of do
+                filters_for(search, filter['conditions'])
+              end
+          end
+        end
+      else # field
+        oper = operator_for(filter['field'], filter['operator'])
+        case oper
+        when 'keywords'
+          keywords = filter['value']
+          keywords = "-#{keywords}" if filter['operator'].include?('not ')
+          search.fulltext(keywords, fields: filter['field'])
+        else
+          if oper.nil?
+            puts "No operator found for #{filter['operator']}"
+          else
+            if filter['operator'].include? 'not '
+              search.without(filter['field']).send(oper, filter['value'])
+            else
+              search.with(filter['field']).send(oper, filter['value'])
+            end
+          end
+        end
+      end
+    end
+  end
+
+  def operator_for(field, client_operator)
+    text_fields = ['title', 'description', 'ingest_notes']
+    {
+      'contains' => text_fields.include?(field) ? 'keywords' : 'keywords',
+      'not_contains' => text_fields.include?(field) ? 'keywords' : 'keywords',
+      'begins_with' => 'starting_with',
+      'not_begins_with' => 'starting_with',
+      'greater_than' => 'greater_than',
+      'less_than' => 'less_than',
+      'equal' => text_fields.include?(field) ? 'keywords' : 'equal_to',
+      'not_equal' => 'equal_to',
+    }[client_operator]
   end
 end

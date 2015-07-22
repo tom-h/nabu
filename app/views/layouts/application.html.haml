@@ -19,6 +19,14 @@
     = javascript_include_tag :application
     = javascript_include_tag 'http://maps.googleapis.com/maps/api/js?sensor=false'
 
+    - if content_for?(:meta_headers)
+      = yield :meta_headers
+
+    - if content_for?(:page_scripts)
+      - scripts = yield(:page_scripts).split(',')
+      - scripts.each do |script|
+        = javascript_include_tag script.strip
+
     = csrf_meta_tags
     - analytical.identify(current_user.id, :email => current_user.email) if current_user
     = raw analytical.head_append_javascript

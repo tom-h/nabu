@@ -53,6 +53,7 @@ Nabu::Application.routes.draw do
       get 'last_search' => 'items#return_to_last_search'
       get 'search' => 'items#search'
       get 'advanced_search' => 'items#advanced_search'
+      post 'new_advanced_search' => 'items#new_advanced_search'
       get 'bulk_update' => 'items#bulk_edit'
       put 'bulk_update' => 'items#bulk_update'
       get 'new_report' => 'items#new_report'

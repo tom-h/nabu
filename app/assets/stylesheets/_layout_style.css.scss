@@ -1,3 +1,5 @@
+@import "jui_filter_rules/jquery.jui_filter_rules";
+
 body.bp {
   font-family: normal Verdana, Tahoma, sans-serif;
 
@@ -297,6 +299,49 @@ body.bp {
     }
     td.empty {
       background: transparent;
+    }
+  }
+
+  #jui_filters {
+    .rules_group_header {
+      padding-left: 0.5rem;
+    }
+    .rules_group_container {
+      margin: 0.5rem 0;
+      border: 1px solid #aaaaaa;
+      border-radius: 5px;
+    }
+    .rule_tools_container {
+      position: relative;
+      .rule_tools_list {
+        position: absolute;
+        right: -0.3rem;
+      }
+    }
+    input, select {
+      font-size: 1rem;
+    }
+    .filter_value_container {
+      max-width: 35%;
+      > select {
+        width: 100%;
+      }
+      > input[type="text"] {
+        box-shadow: none;
+        border: 1px solid #666666;
+        background: white none;
+        border-radius: 4px;
+        color: black;
+        padding: 1px 0 0 7px;
+        margin: auto;
+      }
+    }
+    .rules_list_li {
+      border-bottom-left-radius: 5px;
+      border-bottom-right-radius: 5px;
+      > div {
+        width: auto;
+      }
     }
   }
 

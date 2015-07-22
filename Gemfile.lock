@@ -153,6 +153,7 @@ GEM
     has_scope (0.6.0.rc)
       actionpack (>= 3.2, < 5)
       activesupport (>= 3.2, < 5)
+    hashie (3.4.2)
     highline (1.6.15)
     hike (1.2.3)
     http_parser.rb (0.5.3)
@@ -380,6 +381,7 @@ DEPENDENCIES
   guard-rspec
   guard-sunspot
   haml-rails
+  hashie
   jquery-rails
   kaminari
   launchy

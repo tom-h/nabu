@@ -61,6 +61,7 @@ gem 'paper_trail', '~> 2'
 gem 'quiet_assets'
 gem 'spreadsheet'
 gem 'rake'
+gem 'hashie'
 
 # Image processing
 gem 'rmagick'

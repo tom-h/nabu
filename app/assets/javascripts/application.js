@@ -17,6 +17,9 @@
 //= require jquery-query
 //= require select2
 //= require markerclusterer
+//= require lodash
+//= require jquery.jui_filter_rules
+//= require jui_filter_rules/localisation/en
 //
 // Our Stuff
 //= require select2_setup
