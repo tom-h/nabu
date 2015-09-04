@@ -22,7 +22,7 @@ class BatchDoiMintingService
 
   def run
     @unminted_objects.each do |unminted_object|
-      @doi_minting_service.mint_doi(unminted_object)
+      @doi_minting_service.delay.mint_doi(unminted_object)
     end
   end
 end
