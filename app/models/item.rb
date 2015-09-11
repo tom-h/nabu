@@ -106,7 +106,7 @@ class Item < ActiveRecord::Base
     self.private == false && self.collection.private == false
   end
 
-  def full_identifier
+  def ookii_namae
     # WIP: Don't commit this to develop!
     # collection.identifier + '-' + identifier
     collection.identifier + 'Z' + identifier
@@ -119,12 +119,12 @@ class Item < ActiveRecord::Base
 
   def path
     basepath = Nabu::Application.config.archive_directory + '/' + collection.identifier + '/' + identifier + '/'
-    filename = "#{full_identifier}-CAT-PDSC_ADMIN.xml"
+    filename = "#{ookii_namae}-CAT-PDSC_ADMIN.xml"
     basepath + filename
   end
 
   def xml_key
-    "paradisec.org.au/item/#{full_identifier}"
+    "paradisec.org.au/item/#{ookii_namae}"
   end
 
   def essence_types
@@ -189,14 +189,14 @@ class Item < ActiveRecord::Base
   end
 
   def self.sortable_columns
-    %w{full_identifier title collector_sortname updated_at language}
+    %w{ookii_namae title collector_sortname updated_at language}
   end
 
   searchable do
     # Things we want to perform full text search on
     text :title
     text :identifier, :as => :identifier_textp
-    text :full_identifier, :as => :full_identifier_textp
+    text :ookii_namae, :as => :ookii_namae_textp
     text :collector_name
     text :university_name
     text :operator_name
@@ -255,7 +255,7 @@ class Item < ActiveRecord::Base
     integer :id
     string :title
     string :identifier
-    string :full_identifier
+    string :ookii_namae
     string :university_name
     string :collector_name
     string :collector_sortname
@@ -383,7 +383,7 @@ class Item < ActiveRecord::Base
     xml.tag! 'olac:olac', OAI::Provider::Metadata::Olac.instance.header_specification do
       xml.tag! 'dc:title', title
 
-      xml.tag! 'dc:identifier', full_identifier
+      xml.tag! 'dc:identifier', ookii_namae
       xml.tag! 'dc:identifier', "http://catalog.paradisec.org.au/repository/#{collection.identifier}/#{identifier}", 'xsi:type' => 'dcterms:URI' unless external?
       xml.tag! 'dc:identifier', url if url?
 

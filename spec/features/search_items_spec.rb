@@ -47,17 +47,17 @@ describe 'Item Search', search: true do
       let!(:item) { create(:item, identifier: identifier) }
 
       context 'using a full keyword' do
-        let(:search_term) { item.full_identifier }
+        let(:search_term) { item.ookii_namae }
         it 'should have a match' do
-          pending 'fails even when dash is removed from full_identifier'
+          pending 'fails even when dash is removed from ookii_namae'
           expect(search.results.length).to eq 1
         end
       end
 
       context 'using a partial keyword' do
-        let(:search_term) { item.full_identifier[0..-2] }
+        let(:search_term) { item.ookii_namae[0..-2] }
         it 'should have a match' do
-          pending 'fails even when dash is removed from full_identifier'
+          pending 'fails even when dash is removed from ookii_namae'
           expect(search.results.length).to eq 1
         end
       end
