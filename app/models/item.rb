@@ -107,7 +107,9 @@ class Item < ActiveRecord::Base
   end
 
   def full_identifier
-    collection.identifier + '-' + identifier
+    # WIP: Don't commit this to develop!
+    # collection.identifier + '-' + identifier
+    collection.identifier + 'Z' + identifier
   end
 
   def full_path
@@ -193,8 +195,8 @@ class Item < ActiveRecord::Base
   searchable do
     # Things we want to perform full text search on
     text :title
-    text :identifier, :as => :code_textp
-    text :full_identifier, :as => :code_textp
+    text :identifier, :as => :identifier_textp
+    text :full_identifier, :as => :full_identifier_textp
     text :collector_name
     text :university_name
     text :operator_name

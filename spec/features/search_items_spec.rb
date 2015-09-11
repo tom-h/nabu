@@ -49,7 +49,7 @@ describe 'Item Search', search: true do
       context 'using a full keyword' do
         let(:search_term) { item.full_identifier }
         it 'should have a match' do
-          pending 'fails for some reason'
+          pending 'fails even when dash is removed from full_identifier'
           expect(search.results.length).to eq 1
         end
       end
@@ -57,7 +57,7 @@ describe 'Item Search', search: true do
       context 'using a partial keyword' do
         let(:search_term) { item.full_identifier[0..-2] }
         it 'should have a match' do
-          pending 'fails for some reason'
+          pending 'fails even when dash is removed from full_identifier'
           expect(search.results.length).to eq 1
         end
       end
