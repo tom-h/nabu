@@ -14,7 +14,7 @@ class ItemsController < ApplicationController
     end
 
     @search = Item.solr_search do
-      fulltext params[:search].gsub(/-/, ' ') if params[:search]
+      fulltext params[:search].tr('-', ' ') if params[:search]
 
       facet :content_language_codes, :country_ids
       facet :collector_id, :limit => 100
@@ -53,7 +53,7 @@ class ItemsController < ApplicationController
     #For creating duplicate items
     if params[:id]
       existing = Item.find(params[:id])
-      attributes = existing.attributes.select do |attr, value|
+      attributes = existing.attributes.select do |attr, _value|
         Item.column_names.include?(attr.to_s)
       end
 
@@ -64,7 +64,6 @@ class ItemsController < ApplicationController
         existing.send(assoc).each { |a| @item.send(assoc) << a }
       end
     end
-
   end
 
   def show
@@ -160,26 +159,23 @@ class ItemsController < ApplicationController
     do_search
   end
 
-
   def bulk_update
     @items = Item.accessible_by(current_ability).where :id => params[:item_ids].split(' ')
 
-    params[:item].delete_if {|k, v| v.blank?}
+    params[:item].delete_if {|_k, v| v.blank?}
 
     # Collect the fields we are appending to
     appendable = {}
     params[:item].each_pair do |k, v|
       if k =~ /^bulk_edit_append_(.*)/
-        appendable[$1] = params[:item].delete $1 if v == "1"
+        appendable[Regexp.last_match(1)] = params[:item].delete Regexp.last_match(1) if v == "1"
         params[:item].delete k
       end
     end
 
     invalid_record = false
     @items.each do |item|
-      if item.nil? # I don't think this should be able to be nil
-        next
-      end
+      next if item.nil? # I don't think this should be able to be nil
 
       appendable.each_pair do |k, v|
         if item.send(k).nil?
@@ -240,11 +236,9 @@ class ItemsController < ApplicationController
   def tidy_params
     if params[:item]
       params[:item][:item_agents_attributes] ||= {}
-      params[:item][:item_agents_attributes].each_pair do |id, iaa|
+      params[:item][:item_agents_attributes].each_pair do |_id, iaa|
         name = iaa['user_id']
-        if name =~ /^NEWCONTACT:/
-          iaa['user_id'] = create_contact(name)
-        end
+        iaa['user_id'] = create_contact(name) if name =~ /^NEWCONTACT:/
       end
       if params[:item][:collector_id] =~ /^NEWCONTACT:/
         params[:item][:collector_id] = create_contact(params[:item][:collector_id])
@@ -252,8 +246,8 @@ class ItemsController < ApplicationController
 
       if params[:existing_id].present?
         agent_attrs = params[:item].delete(:item_agents_attributes)
-        new_agents = agent_attrs.select {|k,v| v[:id].nil? }
-        agent_ids = agent_attrs.reject {|k,v| v[:id].nil? || v['_destroy'].to_s != '0' }.map {|k,v| v['id'] }
+        new_agents = agent_attrs.select {|_k, v| v[:id].nil? }
+        agent_ids = agent_attrs.reject {|_k, v| v[:id].nil? || v['_destroy'].to_s != '0' }.map {|_k, v| v['id'] }
 
         params[:item][:item_agents_attributes] = {}
         i = 0
@@ -262,7 +256,7 @@ class ItemsController < ApplicationController
           i += 1
         end
 
-        new_agents.each do |k,v|
+        new_agents.each do |_k, v|
           params[:item][:item_agents_attributes][i.to_s] = {user_id: v['user_id'].to_i, agent_role_id: v['agent_role_id'].to_i}
           i += 1
         end
@@ -298,36 +292,36 @@ class ItemsController < ApplicationController
       # GEO Is special
       if params[:north_limit]
         all_of do
-          with(:north_limit).less_than    params[:north_limit]
+          with(:north_limit).less_than params[:north_limit]
           with(:north_limit).greater_than params[:south_limit]
 
-          with(:south_limit).less_than    params[:north_limit]
+          with(:south_limit).less_than params[:north_limit]
           with(:south_limit).greater_than params[:south_limit]
 
           if params[:west_limit] <= params[:east_limit]
             with(:west_limit).greater_than params[:west_limit]
-            with(:west_limit).less_than    params[:east_limit]
+            with(:west_limit).less_than params[:east_limit]
 
             with(:east_limit).greater_than params[:west_limit]
-            with(:east_limit).less_than    params[:east_limit]
+            with(:east_limit).less_than params[:east_limit]
           else
             any_of do
               all_of do
                 with(:west_limit).greater_than params[:west_limit]
-                with(:west_limit).less_than    180
+                with(:west_limit).less_than 180
               end
               all_of do
-                with(:west_limit).less_than    params[:east_limit]
+                with(:west_limit).less_than params[:east_limit]
                 with(:west_limit).greater_than(-180)
               end
             end
             any_of do
               all_of do
                 with(:east_limit).greater_than params[:west_limit]
-                with(:east_limit).less_than    180
+                with(:east_limit).less_than 180
               end
               all_of do
-                with(:east_limit).less_than    params[:east_limit]
+                with(:east_limit).less_than params[:east_limit]
                 with(:east_limit).greater_than(-180)
               end
             end
