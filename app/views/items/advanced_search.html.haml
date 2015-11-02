@@ -101,27 +101,14 @@
             = check_box_tag :language_blank, 1, params[:language_blank]
 
         %tr
-          %th=# label_tag :subject_language_codes, 'Subject languages'
+          %th= label_tag :subject_language_ids, 'Subject languages'
           %td
-            =# hidden_field_tag :subject_language_codes, params[:subject_language_codes], :data => {:placeholder => 'Choose a language...', :url => languages_path, :multiple => true}, :class => 'select2 language'
-            =# hidden_field_tag :subject_language_codes, params[:subject_language_codes], options_for_select([['Lisbon', 1], ['Madrid', 2], ...], 2), :data => {:placeholder => 'Choose a language...', :url => languages_path, :multiple => true}, :class => 'select2 language'
-
-        %tr
-          %th= label_tag :subject_language_codes, 'Subject languages'
-          %td
-            = # collection_select(:person, :city_id, City.all, :id, :name)
-            = # collection_select_tag(:subject_language_codes, Language.all, :code, :name)
-            - # options_from_collection_for_select(City.all, :id, :name)
-            - # options_from_collection_for_select(Language.all, :code, :name)
-            - # subject_languages_array = Language.all.map { |language| [language.name, language.code] }
-            - # options_for_select(subject_languages_array)
-            =# select_tag(:subject_language_codes, options_for_select(subject_languages_array))
-            = select_tag(:subject_language_codes, options_from_collection_for_select(Language.all, :code, :name))
+            = hidden_field_tag :subject_language_ids, params[:subject_language_ids], :data => {:placeholder => 'Choose a language...', :url => languages_path, :'extra-name' => 'country_ids', :'extra-selector' => '#item_country_ids', :multiple => true}, :class => 'select2 language'
 
         %tr
           %th= label_tag :content_language_ids, 'Content language'
           %td
-            = hidden_field_tag :content_language_ids, params[:content_language_ids], :data => {:placeholder => 'Choose a language...', :url => languages_path, :multiple => true}, :class => 'select2 language'
+            = hidden_field_tag :content_language_ids, params[:content_language_ids], :data => {:placeholder => 'Choose a language...', :url => languages_path, :'extra-name' => 'country_ids', :'extra-selector' => '#item_country_ids', :multiple => true}, :class => 'select2 language'
 
         %tr
           %th= label_tag :dialect
