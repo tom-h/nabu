@@ -111,9 +111,12 @@
           %td
             = # collection_select(:person, :city_id, City.all, :id, :name)
             = # collection_select_tag(:subject_language_codes, Language.all, :code, :name)
-            - subject_languages_array = Language.all.map { |language| [language.name, language.code] }
+            - # options_from_collection_for_select(City.all, :id, :name)
+            - # options_from_collection_for_select(Language.all, :code, :name)
+            - # subject_languages_array = Language.all.map { |language| [language.name, language.code] }
             - # options_for_select(subject_languages_array)
-            = select_tag(:subject_language_codes, options_for_select(subject_languages_array))
+            =# select_tag(:subject_language_codes, options_for_select(subject_languages_array))
+            = select_tag(:subject_language_codes, options_from_collection_for_select(Language.all, :code, :name))
 
         %tr
           %th= label_tag :content_language_ids, 'Content language'
