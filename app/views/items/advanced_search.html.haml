@@ -101,9 +101,9 @@
             = check_box_tag :language_blank, 1, params[:language_blank]
 
         %tr
-          %th= label_tag :subject_language_ids, 'Subject languages'
+          %th= label_tag :subject_language_codes, 'Subject languages'
           %td
-            = hidden_field_tag :subject_language_ids, params[:subject_language_ids], :data => {:placeholder => 'Choose a language...', :url => languages_path, :'extra-name' => 'country_ids', :'extra-selector' => '#item_country_ids', :multiple => true}, :class => 'select2 language'
+            = hidden_field_tag :subject_language_codes, params[:subject_language_codes], :data => {:placeholder => 'Choose a language...', :url => languages_path, :'extra-name' => 'country_ids', :'extra-selector' => '#item_country_ids', :multiple => true}, :class => 'select2 language'
 
         %tr
           %th= label_tag :content_language_ids, 'Content language'
