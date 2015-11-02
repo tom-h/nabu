@@ -25,9 +25,9 @@
             %legend Content Languages
             .fix-scroll-height
               %table
-                - @search.facet(:content_language_ids).rows.sort {|a,b| a.instance.name <=> b.instance.name }.each do |row|
-                  - language = row.instance
-                  - params_with_facet = params.merge(:language_id => language.id)
+                - @search.facet(:content_language_codes).rows.sort {|a,b| a.value <=> b.value }.each do |row|
+                  - language = Language.where(code: row.value).first
+                  - params_with_facet = params.merge(:language_code => row.value)
                   %tr
                     %td
                       = link_to language.name, params_with_facet

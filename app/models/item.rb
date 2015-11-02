@@ -325,6 +325,9 @@ class Item < ActiveRecord::Base
     string :content_languages, :multiple => true do
       content_languages.map(&:name)
     end
+    string :content_language_codes, :multiple => true do
+      content_languages.map(&:code)
+    end
     string :subject_languages, :multiple => true do
       subject_languages.map(&:name)
     end
