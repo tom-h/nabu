@@ -20,7 +20,9 @@ Nabu::Application.routes.draw do
     end
   end
   resources :countries, :only => [:index, :show]
-  resources :languages, :only => [:index, :show]
+  get '/languages/:code' => 'languages#show'
+  resources :languages, :only => [:index]
+
   resources :data_categories, :only => [:index, :show]
   resources :collections do
     collection do

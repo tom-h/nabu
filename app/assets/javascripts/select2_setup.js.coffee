@@ -31,28 +31,32 @@
           text = d.name
           if d.code
             text = text + " (" + d.code + ")"
-          results.push {id: d.id, text: text}
+          results.push {id: d.code, text: text}
         {results: results}
     }
     options['initSelection'] = (element, callback) ->
       results = []
-      ids = $(element).val().split(/, ?/)
-      for id in ids
+      codes = $(element).val().split(/, ?/)
+      for code in codes
         data = {}
         $.ajax(
-          url: url + '/' + id,
+          url: url + '/' + code,
           dataType: 'json',
           async: false,
           success: (object) ->
             data = object
         )
         text = data.name
+        # What kinds of data have .code?
+        # Country, Language
         if data.code
           text = text + " (" + data.code + ")"
         if options['multiple']
-          results.push { id: data.id, text: text }
+          # results.push { id: data.id, text: text }
+          results.push { id: data.code, text: text }
         else
           results = { id: data.id, text: text }
+          # results = { id: data.code, text: text }
       callback.call(null, results)
 
   createable = $(element).data('createable')

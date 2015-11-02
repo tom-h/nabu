@@ -1,5 +1,5 @@
 class LanguagesController < ApplicationController
-  load_and_authorize_resource
+  load_and_authorize_resource :language, :except => [:show]
 
   respond_to :json
 
@@ -21,6 +21,7 @@ class LanguagesController < ApplicationController
   end
 
   def show
+    @language = Language.where(code: params[:code]).first
     respond_with @language
   end
 end
