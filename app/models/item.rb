@@ -82,8 +82,8 @@ class Item < ActiveRecord::Base
 
   # require presence of these three fields.
   validates :identifier, :presence => true,
-                         :uniqueness => {:scope => [:collection_id, :identifier]},
-                         :format => { :with => /^[a-zA-Z0-9_]*$/, :message => "error - only letters and numbers and '_' allowed" }
+            :uniqueness => {:scope => [:collection_id, :identifier]},
+            :format => { :with => /^[a-zA-Z0-9_]*$/, :message => "error - only letters and numbers and '_' allowed" }
   validates_length_of :identifier, :within => 2..30
   validates :title, :presence => true
   validates :collector_id, :presence => true
@@ -128,7 +128,8 @@ class Item < ActiveRecord::Base
   delegate :name, :to => :access_condition, :prefix => true, :allow_nil => true
 
   DUPLICATABLE_ASSOCIATIONS = %w(countries subject_languages content_languages
-                                 admins users agents data_categories)
+                         admins users agents data_categories)
+
 
   paginates_per 10
 
@@ -145,7 +146,7 @@ class Item < ActiveRecord::Base
   end
 
   def public?
-    private == false && collection.private == false
+    self.private == false && self.collection.private == false
   end
 
   def full_identifier
@@ -214,22 +215,22 @@ class Item < ActiveRecord::Base
     unless override
       # by default, only inherit attributes which don't already have a value
       existing_attributes = Hash[*inherited_attributes.keys.map do |key|
-        val = send(key)
-        [key.to_sym, val] unless val.blank?
-      end.reject(&:nil?).flatten(1)]
+                                   val = self.send(key)
+                                   [key.to_sym, val] unless val.blank?
+                                 end.reject{|x| x.nil?}.flatten(1)]
       # -> this merge causes the current attribute value to replace the inherited one before we update
       inherited_attributes = inherited_attributes.merge(existing_attributes)
     end
     # since the attributes here are already explicitly whitelisted, just inherit them and don't add to attr_accessible
 
     inherited_attributes.each_pair do |key, val|
-      send("#{key}=", val)
+      self.send("#{key}=", val)
     end
-    save
+    self.save
   end
 
   def self.sortable_columns
-    %w(full_identifier title collector_sortname updated_at language)
+    %w{full_identifier title collector_sortname updated_at language}
   end
 
   searchable do
@@ -347,22 +348,24 @@ class Item < ActiveRecord::Base
     blank_fields = [:title, :description, :originated_on, :originated_on_narrative, :url, :language, :dialect, :region, :original_media, :received_on, :digitised_on, :ingest_notes, :metadata_imported_on, :metadata_exported_on, :tracking, :access_narrative, :admin_comment]
     blank_fields.each do |f|
       boolean "#{f}_blank".to_sym do
-        send(f).blank?
+        self.send(f).blank?
       end
     end
   end
 
   def next_item
-    Item.where(:collection_id => collection).order(:identifier).where('identifier > ?', identifier).first
+    Item.where(:collection_id => self.collection).order(:identifier).where('identifier > ?', self.identifier).first
   end
 
   def prev_item
-    Item.where(:collection_id => collection).order(:identifier).where('identifier < ?', identifier).last
+    Item.where(:collection_id => self.collection).order(:identifier).where('identifier < ?', self.identifier).last
   end
 
   def citation
     cite = ""
-    cite += "#{collector.name} (collector)" if collector
+    if collector
+      cite += "#{collector.name} (collector)"
+    end
     item_agents.group_by(&:user).map do |user, ias|
       cite += ", " unless cite == ""
       cite += "#{user.name} (#{ias.map(&:agent_role).map(&:name).join(', ')})"
@@ -372,12 +375,12 @@ class Item < ActiveRecord::Base
     cite += "<i>#{sanitize(title)}</i>, "
     last = essence_types.count - 1
     essence_types.each_with_index do |type, index|
-      cite += type
-      if index != last
-        cite += "/"
-      else
-        cite += ", "
-      end
+        cite += type
+        if index != last
+            cite += "/"
+        else
+            cite += ", "
+        end
     end
     cite += " #{Date.today}."
     cite += " DOI: #{doi}" if doi
@@ -488,7 +491,7 @@ class Item < ActiveRecord::Base
         when 'song'
           xml.tag! 'dc:subject', ' xsi:type' => 'olac:discourse-type', 'olac:code' => 'singing'
         when 'typological analysis'
-          xml.tag! 'dc:subject', cat.data_category.name, 'xsi:type' => 'olac:linguistic-field', 'olac:code' => 'typology'
+          xml.tag! 'dc:subject', cat.data_category.name, 'xsi:type' => 'olac:linguistic-field' , 'olac:code' => 'typology'
         when 'photo'
           xml.tag! 'dc:type', 'Image', 'xsi:type' => 'dcterms:DCMIType'
         when 'moving image'
@@ -497,12 +500,14 @@ class Item < ActiveRecord::Base
           xml.tag! 'dc:type', 'Sound', 'xsi:type' => 'dcterms:DCMIType'
         when 'instrumental music'
           xml.tag! 'dc:type', 'instrumental music'
+        else
+          # ignore
         end
       end
 
       if access_condition
         access = access_condition.name
-        access += ", #{access_narrative}" unless access_narrative.blank?
+        access += ", #{access_narrative}" if !access_narrative.blank?
         xml.tag! 'dcterms:accessRights', access
         xml.tag! 'dc:rights', access_condition.name
       end
