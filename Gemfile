@@ -31,7 +31,7 @@ gem 'activeadmin', '~> 1.0.0.pre2'
 
 # Authentications
 gem 'devise', '~> 3.5.3'
-gem 'cancan'
+gem 'cancancan', '~> 1.10'
 
 # Database improvements
 gem 'squeel', '~> 1.2.3'
