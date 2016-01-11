@@ -54,8 +54,10 @@
     -->
     <!-- *** This fieldType is used by Sunspot! *** -->
     <fieldType name="string" class="solr.StrField" omitNorms="true"/>
+    <fieldType name="text_email_url" class="solr.StrField" omitNorms="true"/>
     <!-- *** This fieldType is used by Sunspot! *** -->
     <fieldType name="tdouble" class="solr.TrieDoubleField" omitNorms="true"/>
+    <fieldType name="tdoubles" class="solr.TrieDoubleField" omitNorms="true" multiValued="true"/>
     <!-- *** This fieldType is used by Sunspot! *** -->
     <fieldType name="rand" class="solr.RandomSortField" omitNorms="true"/>
     <!-- *** This fieldType is used by Sunspot! *** -->
@@ -64,7 +66,7 @@
         <tokenizer class="solr.StandardTokenizerFactory"/>
         <filter class="solr.StandardFilterFactory"/>
         <filter class="solr.LowerCaseFilterFactory"/>
-        <filter class="solr.EdgeNGramFilterFactory" minGramSize="2" maxGramSize="200" side="front"/>
+        <filter class="solr.EdgeNGramFilterFactory" minGramSize="2" maxGramSize="200"/>
       </analyzer>
       <analyzer type="query">
         <tokenizer class="solr.StandardTokenizerFactory"/>
@@ -81,29 +83,35 @@
     </fieldType>
     <!-- *** This fieldType is used by Sunspot! *** -->
     <fieldType name="boolean" class="solr.BoolField" omitNorms="true"/>
+    <fieldType name="booleans" class="solr.BoolField" omitNorms="true" multiValued="true"/>
     <!-- *** This fieldType is used by Sunspot! *** -->
-    <fieldType name="date" class="solr.DateField" omitNorms="true"/>
+    <fieldType name="date" class="solr.TrieDateField" omitNorms="true"/>
     <!-- *** This fieldType is used by Sunspot! *** -->
-    <fieldType name="sdouble" class="solr.SortableDoubleField" omitNorms="true"/>
+    <fieldType name="sdouble" class="solr.TrieDoubleField" omitNorms="true"/>
     <!-- *** This fieldType is used by Sunspot! *** -->
-    <fieldType name="sfloat" class="solr.SortableFloatField" omitNorms="true"/>
+    <fieldType name="sfloat" class="solr.TrieFloatField" omitNorms="true"/>
     <!-- *** This fieldType is used by Sunspot! *** -->
-    <fieldType name="sint" class="solr.SortableIntField" omitNorms="true"/>
+    <fieldType name="sint" class="solr.TrieIntField" omitNorms="true"/>
     <!-- *** This fieldType is used by Sunspot! *** -->
-    <fieldType name="slong" class="solr.SortableLongField" omitNorms="true"/>
+    <fieldType name="slong" class="solr.TrieLongField" omitNorms="true"/>
+    <fieldType name="tlong" class="solr.TrieLongField" omitNorms="true"/>
+    <fieldType name="tlongs" class="solr.TrieLongField" omitNorms="true" multiValued="true"/>
     <!-- *** This fieldType is used by Sunspot! *** -->
     <fieldType name="tint" class="solr.TrieIntField" omitNorms="true"/>
+    <fieldType name="tints" class="solr.TrieIntField" omitNorms="true" multiValued="true"/>
     <!-- *** This fieldType is used by Sunspot! *** -->
     <fieldType name="tfloat" class="solr.TrieFloatField" omitNorms="true"/>
+    <fieldType name="tfloats" class="solr.TrieFloatField" omitNorms="true" multiValued="true"/>
     <!-- *** This fieldType is used by Sunspot! *** -->
     <fieldType name="tdate" class="solr.TrieDateField" omitNorms="true"/>
+    <fieldType name="tdates" class="solr.TrieDateField" omitNorms="true" multiValued="true"/>
   </types>
   <fields>
     <!-- Valid attributes for fields:
      name: mandatory - the name for the field
      type: mandatory - the name of a previously defined type from the 
        <types> section
-     indexed: true if this field should be indexed (searchable or sortable)
+     indexed: true if this field should be indexed (searchable or Trie)
      stored: true if this field should be retrievable
      compressed: [false] if this field should be stored using gzip compression
        (this will only apply if the field type is compressable; among
@@ -125,7 +133,9 @@
        when adding a document.
    -->
     <!-- *** This field is used by Sunspot! *** -->
+    <field name="_version_" stored="true" type="slong" multiValued="false" indexed="true"/>
     <field name="id" stored="true" type="string" multiValued="false" indexed="true"/>
+    <field name="language" stored="true" type="string" multiValued="false" indexed="true"/>
     <!-- *** This field is used by Sunspot! *** -->
     <field name="type" stored="false" type="string" multiValued="true" indexed="true"/>
     <!-- *** This field is used by Sunspot! *** -->
