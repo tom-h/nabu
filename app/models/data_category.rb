@@ -11,8 +11,8 @@ class DataCategory < ActiveRecord::Base
 
   attr_accessible :name
 
-  scope :alpha, order(:name)
+  scope :alpha, ->{order(:name)}
 
   has_many :item_data_categories
-  has_many :items, :through => :item_data_categories, :dependent => :restrict
+  has_many :items, :through => :item_data_categories, :dependent => :restrict_with_error
 end

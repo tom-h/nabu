@@ -13,16 +13,16 @@ class Country < ActiveRecord::Base
 
   attr_accessible :name, :code
 
-  scope :alpha, order(:name)
+  scope :alpha, ->{order(:name)}
   def name_with_code
     "#{name} - #{code}"
   end
 
   has_many :countries_languages
-  has_many :languages, :through => :countries_languages, :dependent => :restrict
+  has_many :languages, :through => :countries_languages, :dependent => :restrict_with_error
 
   has_many :collection_languages
-  has_many :collections, :through => :collection_languages, :dependent => :restrict
+  has_many :collections, :through => :collection_languages, :dependent => :restrict_with_error
 
   has_one :latlon_boundary
 end

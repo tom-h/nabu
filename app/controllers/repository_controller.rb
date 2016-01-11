@@ -1,5 +1,5 @@
 require 'ostruct'
-require 'media'
+require 'nabu/media'
 
 class RepositoryController < ApplicationController
 
@@ -86,6 +86,8 @@ class RepositoryController < ApplicationController
     end
 
     response.header["Content-Length"] = (file_end.to_i - file_begin.to_i + 1).to_s
+    # response.header["Last-Modified"] = Time.now.ctime.to_s
+    # response.headers['Cache-Control'] = 'private,max-age=0,must-revalidate,no-store'
     response.header["Last-Modified"] = essence.updated_at.to_s if essence.respond_to?(:updated_at)
 
     response.header["Cache-Control"] = "public, must-revalidate, max-age=0"

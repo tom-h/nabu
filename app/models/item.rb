@@ -77,13 +77,13 @@ class Item < ActiveRecord::Base
   has_many :item_data_categories, :dependent => :destroy
   has_many :data_categories, :through => :item_data_categories, :validate => true
 
-  has_many :essences, :dependent => :restrict
+  has_many :essences, :dependent => :restrict_with_error
   has_many :comments, :as => :commentable, :dependent => :destroy
 
   # require presence of these three fields.
   validates :identifier, :presence => true,
             :uniqueness => {:scope => [:collection_id, :identifier]},
-            :format => { :with => /^[a-zA-Z0-9_]*$/, :message => "error - only letters and numbers and '_' allowed" }
+            :format => { :with => /\A[a-zA-Z0-9_]*\z/, :message => "error - only letters and numbers and '_' allowed" }
   validates_length_of :identifier, :within => 2..30
   validates :title, :presence => true
   validates :collector_id, :presence => true
@@ -137,7 +137,7 @@ class Item < ActiveRecord::Base
 
   after_save :update_collection_countries_and_languages
 
-  scope :public, joins(:collection).where(:private => false, :collection => {:private => false})
+  scope :publicly_accessible, ->{joins(:collection).where(:private => false, :collection => {:private => false})}
 
   def has_default_map_boundaries?
     if (north_limit == 80.0) && (south_limit == -80.0) && (east_limit == -40.0) && (west_limit == -20.0)

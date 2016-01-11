@@ -45,7 +45,7 @@ class Collection < ActiveRecord::Base
   has_many :grants
   accepts_nested_attributes_for :grants, allow_destroy: true
 
-  has_many :items, :dependent => :restrict
+  has_many :items, :dependent => :restrict_with_error
   accepts_nested_attributes_for :items
 
   has_many :collection_languages, :dependent => :destroy
@@ -59,7 +59,7 @@ class Collection < ActiveRecord::Base
 
   # require presence of these three fields
   validates :identifier, :presence => true, :uniqueness => true,
-            :format => { :with => /^[a-zA-Z0-9_]*$/, :message => "error - only letters and numbers and '_' allowed" }
+            :format => { :with => /\A[a-zA-Z0-9_]*\z/, :message => "error - only letters and numbers and '_' allowed" }
   validates :title, :presence => true
   validates :collector_id, :presence => true
 

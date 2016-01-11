@@ -14,10 +14,10 @@ class University < ActiveRecord::Base
 
   attr_accessible :name, :party_identifier
 
-  has_many :collections, :dependent => :restrict
-  has_many :items, :dependent => :restrict
+  has_many :collections, :dependent => :restrict_with_error
+  has_many :items, :dependent => :restrict_with_error
 
-  scope :alpha, order(:name)
+  scope :alpha, ->{ order(:name) }
   paginates_per 10
 
   def full_path

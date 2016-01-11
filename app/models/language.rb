@@ -18,8 +18,8 @@ class Language < ActiveRecord::Base
 
   attr_accessible :name, :code, :retired, :north_limit, :south_limit, :west_limit, :east_limit, :countries_languages_attributes
 
-  default_scope includes(:countries)
-  scope :alpha, order(:name)
+  default_scope { includes(:countries) }
+  scope :alpha, ->{ order(:name) }
   def name_with_code
     "#{name} - #{code}"
   end
@@ -30,11 +30,11 @@ class Language < ActiveRecord::Base
   #validates :countries, :length => { :minimum => 1 }
 
   has_many :item_content_languages
-  has_many :items_for_content, :through => :item_content_languages, :source => :item, :dependent => :restrict
+  has_many :items_for_content, :through => :item_content_languages, :source => :item, :dependent => :restrict_with_error
 
   has_many :item_subject_languages
-  has_many :items_for_subject, :through => :item_subject_languages, :source => :item, :dependent => :restrict
+  has_many :items_for_subject, :through => :item_subject_languages, :source => :item, :dependent => :restrict_with_error
 
   has_many :collection_languages
-  has_many :collections, :through => :collection_languages, :dependent => :restrict
+  has_many :collections, :through => :collection_languages, :dependent => :restrict_with_error
 end

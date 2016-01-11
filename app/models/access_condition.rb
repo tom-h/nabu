@@ -9,12 +9,12 @@
 #
 
 class AccessCondition < ActiveRecord::Base
-  scope :alpha, order(:name)
+  scope :alpha, ->{ order(:name) }
 
   attr_accessible :name
 
   validates :name, :presence => true
 
-  has_many :items,       :dependent => :restrict
-  has_many :collections, :dependent => :restrict
+  has_many :items,       :dependent => :restrict_with_error
+  has_many :collections, :dependent => :restrict_with_error
 end

@@ -11,7 +11,7 @@ class DiscourseType < ActiveRecord::Base
 
   attr_accessible :name
 
-  scope :alpha, order(:name)
+  scope :alpha, ->{order(:name)}
 
-  has_many :items, :dependent => :restrict
+  has_many :items, :dependent => :restrict_with_error
 end

@@ -40,7 +40,7 @@ ActiveAdmin.register Download do
       end
     end
     column :created_at
-    default_actions
+    actions
   end
 
   # show page

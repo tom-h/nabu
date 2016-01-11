@@ -9,7 +9,7 @@ common: &COMMON
 
 production:
   <<: *COMMON
-  database: nabu
+  database: nabu_devel
 
 uat:
   <<: *COMMON

@@ -9,7 +9,7 @@ Nabu::Application.configure do
   config.action_controller.perform_caching = true
 
   # Disable Rails's static asset server (Apache or nginx will already do this)
-  config.serve_static_assets = false
+  config.serve_static_files = false
 
   # Compress JavaScripts and CSS
   config.assets.compress = true
@@ -19,6 +19,7 @@ Nabu::Application.configure do
 
   # Generate digests for assets URLs
   config.assets.digest = true
+  config.eager_load = true
 
   # Defaults to nil and saved in location specified by config.assets.prefix
   # config.assets.manifest = YOUR_PATH
@@ -69,10 +70,11 @@ Nabu::Application.configure do
 
   config.action_mailer.default_url_options = { :host => 'catalog.paradisec.org.au' }
   config.action_mailer.delivery_method = :sendmail
+  config.log_level = :info
 
   # --- NABU APPLICATION SPECIFIC DIRECTORIES BELOW HERE ---
   # --- OVERWRITE FOR PRODUCTION
-  config.archive_directory = "/srv/catalog/"
+  config.archive_directory = "#{Rails.root}/public/system/nabu-archive/"
   config.upload_directories = [
     "/srv/nabu/archive_me/",
     "/srv/nabu/manual_uploads/"

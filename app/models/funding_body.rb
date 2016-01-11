@@ -15,14 +15,14 @@ class FundingBody < ActiveRecord::Base
   validates :name, :presence => true
   validates :name, :key_prefix, :uniqueness => true
 
-  scope :alpha, order(:name)
+  scope :alpha, ->{order(:name)}
 
   def name_with_identifier
     "#{name} #{key_prefix}"
   end
 
   has_many :grants
-  has_many :collections, through: :grants, dependent: :restrict
+  has_many :collections, through: :grants, dependent: :restrict_with_error
 
   def destroy
     ok_to_destroy? ? super : self

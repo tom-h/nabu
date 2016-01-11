@@ -54,7 +54,7 @@ class User < ActiveRecord::Base
 
   paginates_per 10
 
-  scope :alpha, order(:first_name, :last_name)
+  scope :alpha, ->{ order(:first_name, :last_name) }
 
   has_many :collection_admins
   has_many :collections, :through => :collection_admins, :dependent => :destroy
@@ -66,12 +66,12 @@ class User < ActiveRecord::Base
 
   has_many :item_agents, :dependent => :destroy
 
-  has_many :owned_items, :class_name => 'Item', :foreign_key => :collector_id, :dependent => :restrict
+  has_many :owned_items, :class_name => 'Item', :foreign_key => :collector_id, :dependent => :restrict_with_error
 
   delegate :name, :to => :rights_transferred_to, :prefix => true, :allow_nil => true
 
   # find all users with multiple entries by name
-  scope :all_duplicates, select([:first_name, :last_name]).group(:first_name, :last_name).having('count(*) > 1')
+  scope :all_duplicates, ->{select([:first_name, :last_name]).group(:first_name, :last_name).having('count(*) > 1')}
 
   # find identifying info for single user with duplicates
   scope :duplicates_of, ->(first, last, user_ids = nil) {
@@ -81,18 +81,18 @@ class User < ActiveRecord::Base
       .where('(users.first_name = ? and users.last_name = ?) or users.id in (?)', first, last, specific_user_ids)
   }
 
-  scope :users, where(:contact_only => false)
-  scope :contacts, where(:contact_only => true)
-  scope :admins, where(:admin => true)
-  scope :all_users
+  scope :users, ->{where(:contact_only => false)}
+  scope :contacts, ->{where(:contact_only => true)}
+  scope :admins, ->{where(:admin => true)}
+  scope :all_users, ->{all}
 
   # Set random password for contacts
   before_validation do
-    return unless self.contact_only?
-    password = Devise.friendly_token.first(12)
-    p password
-    self.password = password
-    self.password_confirmation = password
+    if self.contact_only?
+      password = Devise.friendly_token.first(12)
+      self.password = password
+      self.password_confirmation = password
+    end
   end
 
   def self.sortable_columns
