@@ -51,7 +51,7 @@ ActiveAdmin.register User do
   filter :contact_only
   filter :admin
 
-  action_item do
+  action_item(:edit) do
     if %w(show edit).include?(params[:action]) and User.duplicates_of(resource.first_name, resource.last_name).count > 1
       link_to 'Merge User', merge_admin_user_path, style: 'float: right;'
     end

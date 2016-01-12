@@ -9,17 +9,17 @@ describe ItemsController, type: :controller do
   let(:collection) {create(:collection, languages: languages)}
   let(:item) {create(:item, collection: collection,
                      access_condition: AccessCondition.new({name: 'Open (subject to agreeing to PDSC access conditions)'}),
-                     subject_languages: subject_languages)}
-  let(:private_item) {create(:item, collection: collection, private: true)}
-  let(:essence) {create(:sound_essence)}
-  let(:item_with_essences) {create(:item, collection: collection, essences: [essence])}
+                     content_languages: subject_languages,
+                     subject_languages: subject_languages, users: [user])}
+  let(:private_item) {create(:item, collection: collection, private: true,
+                             content_languages: subject_languages,
+                             subject_languages: subject_languages)}
+  let(:essence) {create(:sound_essence, item: item)}
+  let(:item_with_essences) {create(:item, collection: collection, essences: [essence],
+                                   content_languages: subject_languages,
+                                   subject_languages: subject_languages)}
 
   let(:params) { {collection_id: collection.identifier, id: item.identifier} }
-
-  before(:all) do
-    # allow test user to access everything
-    item.item_users << ItemUser.new({item: item, user: user})
-  end
 
   context 'when not logged in' do
     context 'when viewing' do
@@ -64,7 +64,7 @@ describe ItemsController, type: :controller do
       it 'should attempt to create the archive directory' do
         #expect the interaction but don't try to create anything
         controller.should_receive(:save_item_catalog_file).and_return(nil)
-        post :create, {collection_id: collection.identifier, item: {collector_id: user.id, identifier: '321', title: 'title goes here'}}
+        post :create, {collection_id: collection.identifier, item: {collector_id: user.id, identifier: '321', title: 'title goes here', description: 'desc'}}
         expect(response).to redirect_to(params.merge(id: '321', action: :show))
         expect(flash[:notice]).to_not be_nil
       end
@@ -167,13 +167,13 @@ describe ItemsController, type: :controller do
     context 'with a specific type' do
       it 'should render the specific template' do
         get :show, params.merge(format: :xml, xml_type: :id3)
-        expect(response).to render_template(file: 'items/show.id3.xml')
+        expect(response).to render_template('items/show.id3')
       end
     end
     context 'with no type' do
       it 'should render the default template' do
         get :show, params.merge(format: :xml)
-        expect(response).to render_template(file: 'items/show.xml')
+        expect(response).to render_template('items/show')
       end
     end
   end

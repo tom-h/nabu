@@ -9,8 +9,10 @@ describe ItemDestructionService do
     FileUtils.stub(:rmdir).and_return nil
   end
 
+  let(:item) {create(:item, content_languages: create_list(:language, 1), subject_languages: create_list(:language, 1))}
+
   context 'when item has no files' do
-    let(:item_with_no_files) {create(:item, essences: [])}
+    let(:item_with_no_files) {create(:item, essences: [], content_languages: create_list(:language, 1), subject_languages: create_list(:language, 1))}
     it 'should proceed without errors when not deleting files' do
       response = ItemDestructionService.new(item_with_no_files, false).destroy
       expect(response[:success]).to eq(true)
@@ -25,8 +27,8 @@ describe ItemDestructionService do
     end
   end
   context 'when item has files' do
-    let(:essence) {create(:sound_essence)}
-    let(:item_with_files) {create(:item, essences: [essence])}
+    let(:essence) {create(:sound_essence, item: item)}
+    let(:item_with_files) {create(:item, essences: [essence], content_languages: create_list(:language, 1), subject_languages: create_list(:language, 1))}
 
     it 'should fail when attempting to leave files' do
       response = ItemDestructionService.new(item_with_files, false).destroy

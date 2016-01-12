@@ -6,15 +6,10 @@ describe EssencesController, type: :controller do
 
   let(:collection) {create(:collection)}
   let(:access_condition) { AccessCondition.new({name: 'Open (subject to agreeing to PDSC access conditions)'}) }
-  let(:item) {create(:item, collection: collection, access_condition: access_condition)}
+  let(:item) {create(:item, collection: collection, users: [user], access_condition: access_condition, content_languages: create_list(:language, 1), subject_languages: create_list(:language, 1))}
   let(:essence) {create(:sound_essence, item: item)}
 
   let(:params) { {collection_id: collection.identifier, item_id: item.identifier, id: essence.id} }
-
-  before(:each) do
-    # allow test user to access everything
-    item.item_users << ItemUser.new({item: item, user: user})
-  end
 
   context 'when not logged in' do
     context 'when viewing an essence' do

@@ -1,5 +1,6 @@
 require 'spec_helper'
 describe 'Item Search', search: true do
+  let(:test_languages) {create_list(:language, 1)}
   describe 'Solr searching of items' do
     let(:search) do
       Item.solr_search do
@@ -16,7 +17,7 @@ describe 'Item Search', search: true do
 
     context 'searching by a keyword mentioned in language' do
       let(:language) { 'South Efate, Bislama' }
-      let(:item) { create(:item, language: language) }
+      let(:item) { create(:item, language: language, subject_languages: test_languages, content_languages: test_languages) }
       let(:search_term) { language }
       it 'should have a match' do
         expect(search.results.length).to eq 1
@@ -25,11 +26,11 @@ describe 'Item Search', search: true do
 
     context 'searching by item identifier' do
       let(:identifier) { 'SomeWords' }
-      let(:item) { create(:item, identifier: identifier) }
+      let(:item) { create(:item, identifier: identifier, subject_languages: test_languages, content_languages: test_languages) }
 
       context 'search term is longer than 10 characters' do
         let(:identifier) { 'ReallyLongWord' }
-        let(:item) { create(:item, identifier: identifier) }
+        let(:item) { create(:item, identifier: identifier, subject_languages: test_languages, content_languages: test_languages) }
 
         context 'using a full keyword' do
           let(:search_term) { identifier }
@@ -63,11 +64,11 @@ describe 'Item Search', search: true do
 
     context 'searching by full identifier' do
       let(:identifier) { 'House' }
-      let(:item) { create(:item, identifier: identifier) }
+      let(:item) { create(:item, identifier: identifier, subject_languages: test_languages, content_languages: test_languages) }
 
       context 'search term is longer than 10 characters' do
         let(:identifier) { 'ReallyLongWord' }
-        let(:item) { create(:item, identifier: identifier) }
+        let(:item) { create(:item, identifier: identifier, subject_languages: test_languages, content_languages: test_languages) }
 
         context 'using a full keyword' do
           let(:search_term) { item.full_identifier }
@@ -103,8 +104,8 @@ describe 'Item Search', search: true do
   describe 'ItemsController use of Item Search' do
     let!(:country1) {create(:country)}
     let!(:country2) {create(:country)}
-    let!(:item1) {create(:item, countries: [country1])}
-    let!(:item2) {create(:item, countries: [country2])}
+    let!(:item1) {create(:item, countries: [country1], subject_languages: test_languages, content_languages: test_languages)}
+    let!(:item2) {create(:item, countries: [country2], subject_languages: test_languages, content_languages: test_languages)}
 
     let!(:user) {create(:user)}
 

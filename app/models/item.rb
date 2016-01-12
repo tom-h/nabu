@@ -77,7 +77,7 @@ class Item < ActiveRecord::Base
   has_many :item_data_categories, :dependent => :destroy
   has_many :data_categories, :through => :item_data_categories, :validate => true
 
-  has_many :essences, :dependent => :restrict_with_error
+  has_many :essences, :dependent => :restrict_with_exception
   has_many :comments, :as => :commentable, :dependent => :destroy
 
   # require presence of these three fields.
