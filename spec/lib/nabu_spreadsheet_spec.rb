@@ -135,4 +135,60 @@ describe Nabu::NabuSpreadsheet do
       expect(item.originated_on).to eq(Date.new(2015, 10, 26))
     end
   end
+
+  describe '#user_from_str' do
+    let(:first_name) { 'John' }
+    let(:last_name) { 'Smith' }
+    let(:user) { create(:user, first_name: first_name, last_name: last_name) }
+
+    before do
+      User.destroy_all
+      nabu_spreadsheet.unstub(:user_from_str)
+      user
+    end
+
+    context 'Comma separated' do
+      let(:name) { 'John,Smith' }
+
+      it 'Can find the user' do
+        expect(nabu_spreadsheet.send(:user_from_str, name)).to eq(user)
+      end
+    end
+
+    context 'Space within name' do
+      let(:first_name) { 'John James' }
+      let(:name) { 'John James,Smith' }
+
+      it 'Can find the user' do
+        expect(nabu_spreadsheet.send(:user_from_str, name)).to eq(user)
+      end
+    end
+
+    context 'No last name, and whitespace exists after the comma' do
+      let(:last_name) { nil }
+      let(:name) { 'John, ' }
+
+      it 'Can find the user' do
+        expect(nabu_spreadsheet.send(:user_from_str, name)).to eq(user)
+      end
+    end
+
+    context 'Has put the surname first' do
+      let(:name) { 'Smith,John' }
+
+      it 'Can find the user' do
+        pending 'Pending spec'
+        expect(nabu_spreadsheet.send(:user_from_str, name)).to eq(user)
+      end
+    end
+
+    context 'Space separated' do
+      let(:name) { 'John Smith' }
+
+      it 'Can find the user' do
+        pending 'Pending spec'
+        expect(nabu_spreadsheet.send(:user_from_str, name)).to eq(user)
+      end
+    end
+  end
 end
