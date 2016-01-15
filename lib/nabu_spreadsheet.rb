@@ -10,7 +10,7 @@ module Nabu
       @items = []
     end
 
-    def parse(data, current_user)
+    def parse(data, _current_user)
       book = load_spreadsheet(data)
       return unless @errors.empty?
 
@@ -149,7 +149,6 @@ module Nabu
       end
 
       @notices << "Existing items: #{existing_items.chomp(', ')}"
-
     end #parse
 
     def valid?
@@ -202,7 +201,5 @@ module Nabu
 
       user
     end
-
   end
-
 end
