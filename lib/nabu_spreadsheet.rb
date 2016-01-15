@@ -199,7 +199,7 @@ module Nabu
         @errors << "Please create user #{name} first<br/>"
         return nil
       end
-      user.save if user.valid?
+
       user
     end
 
