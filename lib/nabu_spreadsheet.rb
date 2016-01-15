@@ -192,7 +192,17 @@ module Nabu
         last_name = nil
       end
 
-      user = User.where(first_name: first_name, last_name: last_name).first
+      user = User.where(first_name: first_name, last_name: last_name).first ||
+        User.where(first_name: last_name, last_name: first_name).first
+
+      unless user
+        first_name, last_name = name.split(' ').map(&:strip)
+
+        # last_name being an empty string shouldn't be a possible scenario
+
+        user = User.where(first_name: first_name, last_name: last_name).first ||
+          User.where(first_name: last_name, last_name: first_name).first
+      end
 
       unless user
         @errors << "Please create user #{name} first<br/>"

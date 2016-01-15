@@ -177,7 +177,6 @@ describe Nabu::NabuSpreadsheet do
       let(:name) { 'Smith,John' }
 
       it 'Can find the user' do
-        pending 'Pending spec'
         expect(nabu_spreadsheet.send(:user_from_str, name)).to eq(user)
       end
     end
@@ -186,7 +185,6 @@ describe Nabu::NabuSpreadsheet do
       let(:name) { 'John Smith' }
 
       it 'Can find the user' do
-        pending 'Pending spec'
         expect(nabu_spreadsheet.send(:user_from_str, name)).to eq(user)
       end
     end
