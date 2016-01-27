@@ -314,6 +314,11 @@ namespace :archive do
     BatchTranscodeEssenceFileService.run(batch_size)
   end
 
+  desc "Move essence files when their item folder has the wrong capitalisation"
+  task :move_wrong_item_folder_essence_files => :environment do
+    BatchMoveWrongItemFolderEssenceFileService.run
+  end
+
   # HELPERS
 
   def directories(path)
