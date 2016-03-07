@@ -107,6 +107,7 @@ group :development do
   gem 'rubocop'
   gem 'rack-mini-profiler', require: false
   gem 'flamegraph'
+  gem 'bullet'
 end
 
 group :test do
