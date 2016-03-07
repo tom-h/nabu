@@ -105,6 +105,8 @@ group :development do
   # Pull request allows ignoring of various devise things.
   gem 'traceroute', github: 'distributedlife/traceroute', :ref => '94eb4e66e13c590e07d3b76cc154d2e32d5c5c21'
   gem 'rubocop'
+  gem 'rack-mini-profiler', require: false
+  gem 'flamegraph'
 end
 
 group :test do
