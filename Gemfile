@@ -102,6 +102,8 @@ group :development do
   gem 'binding_of_caller'
   gem 'better_errors'
   gem 'rubocop'
+  gem 'rack-mini-profiler', require: false
+  gem 'flamegraph'
 end
 
 group :test do
