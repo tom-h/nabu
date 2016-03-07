@@ -140,7 +140,7 @@
       %tr
         %th Roles
         %td
-          - @item.item_agents.each do |item_agent|
+          - @item.item_agents.includes(:user, :agent_role).each do |item_agent|
             == #{item_agent.user.name} : #{item_agent.agent_role.name}
             %br
       %tr
