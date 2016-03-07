@@ -365,7 +365,7 @@ class ItemsController < ApplicationController
   end
 
   def build_solr_search(params)
-    Item.solr_search do
+    Item.solr_search(include: [:collection, :collector, :countries]) do
       fulltext params[:search].gsub(/-/, ' ') if params[:search]
 
       facet :content_language_ids, :country_ids
