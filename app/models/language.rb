@@ -18,7 +18,6 @@ class Language < ActiveRecord::Base
 
   attr_accessible :name, :code, :retired, :north_limit, :south_limit, :west_limit, :east_limit, :countries_languages_attributes
 
-  default_scope includes(:countries)
   scope :alpha, order(:name)
   def name_with_code
     "#{name} - #{code}"
