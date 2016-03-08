@@ -103,7 +103,8 @@ group :development do
   gem 'better_errors'
   gem 'rubocop'
   gem 'rack-mini-profiler', require: false
-  gem 'flamegraph'
+  gem 'stackprof'
+  gem 'flamegraph', :github => 'SamSaffron/flamegraph'
   gem 'bullet'
 end
 
