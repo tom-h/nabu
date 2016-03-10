@@ -1,0 +1,315 @@
+
+.clear
+
+.twoup-1
+  %fieldset
+    %legend Item details
+
+    %table.form
+      %tr
+        %td.empty
+        %td
+          - if params[:action] == 'bulk_edit'
+            = f.select :private, options_for_select([['True', 'true'], ['False', 'false']]), {:include_blank => true}, {:class => 'bool'}
+          - else
+            = f.check_box :private
+          = f.label :private, 'Private: Hide metadata from all users'
+
+      - unless params[:action] == 'bulk_edit'
+        %tr
+          %th= f.label :identifier, 'Item ID'
+          %td
+            - if @item.new_record?
+              = @item.collection.identifier
+              == -
+              = f.text_field :identifier, :class => 'short'
+            - else
+              = @item.full_identifier
+
+      %tr
+        %th
+          = f.label :title
+          %br
+          %i (published)
+        %td= f.text_field :title, {:placeholder => "Please enter a title"}
+        - if params[:action] == 'bulk_edit'
+          %td.append
+            %small Append
+            = f.check_box :bulk_edit_append_title
+
+      %tr
+        %th
+          = f.label :description
+          %br
+          %i (published)
+        %td= f.text_area :description, :rows => 5
+        - if params[:action] == 'bulk_edit'
+          %td.append
+            %small Append
+            = f.check_box :bulk_edit_append_description
+
+      %tr
+        %th= f.label :originated_on, 'Origination date'
+        %td= f.text_field :originated_on, :class => 'dateinput short', :value => params[:originated_on] || @item.originated_on && @item.originated_on.strftime('%d %B %Y')
+
+      %tr
+        %th= f.label :originated_on_narrative, 'Origination date free form'
+        %td= f.text_field :originated_on_narrative
+        - if params[:action] == 'bulk_edit'
+          %td.append
+            %small Append
+            = f.check_box :bulk_edit_append_originated_on_narrative
+
+      %tr
+        %td
+        %td
+          - if params[:action] == 'bulk_edit'
+            = f.select :external, options_for_select([['True', 'true'], ['False', 'false']]), {:include_blank => true}, {:class => 'bool'}
+          - else
+            = f.check_box :external
+          = f.label :external, 'Item not held by Paradisec'
+
+      %tr
+        %th= f.label :url, 'URL'
+        %td= f.text_field :url
+        - if params[:action] == 'bulk_edit'
+          %td.append
+            %small Append
+            = f.check_box :bulk_edit_append_url
+
+      %tr
+        %th= f.label :collector_id
+        %td= f.hidden_field :collector_id, :data => {:placeholder => 'Choose a collector...', :required => true, :url => users_path, :createable => true}, :class => 'select2'
+
+      %tr
+        %th
+          = f.label :country_ids, 'Countries'
+          %br
+          %small
+            = link_to 'Ethnologue list', 'http://www.ethnologue.com/country_index_bibl.asp', :target => '_blank'
+
+        %td= f.hidden_field :country_ids, :data => {:placeholder => 'Choose a country...', :url => countries_path, :multiple => true}, :class => 'select2 country'
+        - if params[:action] == 'bulk_edit'
+          %td.append
+            %small Append
+            = f.check_box :bulk_edit_append_country_ids
+
+      %tr
+        %th
+          = f.label :language, 'Language as given'
+          %br
+          %small
+            = link_to 'Ethnologue list', 'http://www.ethnologue.com/language_index.asp', :target => '_blank'
+        %td= f.text_field :language
+        - if params[:action] == 'bulk_edit'
+          %td.append
+            %small Append
+            = f.check_box :bulk_edit_append_language
+
+      %tr
+        %th= f.label :subject_language_ids, 'Subject languages'
+        %td
+          = f.hidden_field :subject_language_ids, :data => {:placeholder => 'Choose a language...', :url => languages_path, :'extra-name' => 'country_ids', :'extra-selector' => '#item_country_ids', :multiple => true}, :class => 'select2 language'
+          = link_to 'Copy from Content language', '#', :id => 'copy-subject-language'
+        - if params[:action] == 'bulk_edit'
+          %td.append
+            %small Append
+            = f.check_box :bulk_edit_append_subject_language_ids
+
+      %tr
+        %th= f.label :content_language_ids, 'Content language'
+        %td
+          = f.hidden_field :content_language_ids, :data => {:placeholder => 'Choose a language...', :url => languages_path, :'extra-name' => 'country_ids', :'extra-selector' => '#item_country_ids', :multiple => true}, :class => 'select2 language'
+          = link_to 'Copy from Subject language', '#', :id => 'copy-content-language'
+        - if params[:action] == 'bulk_edit'
+          %td.append
+            %small Append
+            = f.check_box :bulk_edit_append_content_language_ids
+
+      %tr
+        %th= f.label :dialect
+        %td= f.text_field :dialect
+        - if params[:action] == 'bulk_edit'
+          %td.append
+            %small Append
+            = f.check_box :bulk_edit_append_dialect
+
+      %tr
+        %th= f.label :region, 'Region / village'
+        %td= f.text_field :region
+        - if params[:action] == 'bulk_edit'
+          %td.append
+            %small Append
+            = f.check_box :bulk_edit_append_region
+
+      %tr
+        %th
+        %td
+          %strong.left
+            - if @item.has_default_map_boundaries?
+              %span.no-map-match-message No matching map data found
+            - else
+              %span.no-map-match-message
+          %strong.right= link_to 'Set map from country', '#', :id => 'set-map-from-country'
+          %strong.right= link_to 'Set map from language', '#', :id => 'set-map-from-language'
+
+      %tr
+        %td{:colspan => 2}
+          = f.hidden_field :north_limit, :class => 'north_limit'
+          = f.hidden_field :south_limit, :class => 'south_limit'
+          = f.hidden_field :east_limit, :class => 'east_limit'
+          = f.hidden_field :west_limit, :class => 'west_limit'
+
+          .map{:data => {:south_limit => @item.south_limit, :north_limit => @item.north_limit, :west_limit => @item.west_limit, :east_limit => @item.east_limit, :editable => 'true'}}
+
+      %tr
+        %th= f.label :university_id, 'Originating university'
+        %td
+          = f.collection_select :university_id, University.alpha, :id, :name, {:include_blank => true}, :data => {:placeholder => 'Choose a university...'}, :class => 'select2 university'
+          = link_to 'Add University', '#', :id => 'add-university'
+
+      %tr
+        %th= f.label :operator_id
+        %td= f.hidden_field :operator_id, :data => {:placeholder => 'Choose an operator...', :url => users_path}, :class => 'select2'
+
+      %tr
+        %th= f.label :data_category_ids, 'Data Categories'
+        %td= f.hidden_field :data_category_ids, :data => {:placeholder => 'Choose a category...', :url => data_categories_path, :multiple => true}, :class => 'select2 data_category'
+        - if params[:action] == 'bulk_edit'
+          %td.append
+            %small Append
+            = f.check_box :bulk_edit_append_data_category_ids
+
+      %tr
+        %th= f.label :discourse_type_id
+        %td= f.collection_select :discourse_type_id, DiscourseType.alpha, :id, :name, {:include_blank => true}, :data => {:placeholder => 'Choose a discourse...'}, :class => 'select2'
+
+      %tr
+        %th= f.label :agent_id, 'Roles'
+        %td
+          = f.fields_for :item_agents do |c|
+            = c.object.user.name
+            == :
+            - if c.object.agent_role
+              = c.object.agent_role.name
+            - else
+              No role given
+            &nbsp;&nbsp;&nbsp;
+            = c.check_box :_destroy
+            Delete
+            %br
+          - ia = ItemAgent.new
+          - id = ia.object_id
+          - fields = f.fields_for :item_agents, ia, :child_index => id do |c|
+            = c.hidden_field :user_id, :data => {:placeholder => 'Choose a user...', :url => users_path, :createable => true}, :class => 'select2'
+            = c.collection_select :agent_role_id, AgentRole.alpha, :id, :name, {:include_blank => true}, :data => {:placeholder => 'Choose a role...'}, :class => 'select2'
+
+          = link_to 'Add new role', '#', :class => 'add_fields', :data => {:id => id, :fields => fields.gsub("\n", "")}
+
+
+.twoup-2
+  %fieldset
+    %legend Archive information
+    %table.form
+      %tr
+        %td.empty
+        %td
+          - if params[:action] == 'bulk_edit'
+            = f.select :metadata_exportable, options_for_select([['True', 'true'], ['False', 'false']]), {:include_blank => true}, {:class => 'bool'}
+          - else
+            = f.check_box :metadata_exportable
+          Ready for metadata export
+      %tr
+        %td.empty
+        %td
+          - if params[:action] == 'bulk_edit'
+            = f.select :born_digital, options_for_select([['True', 'true'], ['False', 'false']]), {:include_blank => true}, {:class => 'bool'}
+          - else
+            = f.check_box :born_digital
+          Born digital
+      %tr
+        %td.empty
+        %td
+          - if params[:action] == 'bulk_edit'
+            = f.select :tapes_returned, options_for_select([['True', 'true'], ['False', 'false']]), {:include_blank => true}, {:class => 'bool'}
+          - else
+            = f.check_box :tapes_returned
+          Tapes returned to depositor
+      %tr
+        %th= f.label :original_media
+        %td= f.text_field :original_media
+        - if params[:action] == 'bulk_edit'
+          %td.append
+            %small Append
+            = f.check_box :bulk_edit_append_original_media
+
+      %tr
+        %th Date received
+        %td= f.text_field :received_on, :class => 'dateinput short', :value => params[:received_on] || @item.received_on && @item.received_on.strftime('%d %B %Y')
+
+      %tr
+        %th Date digitised
+        %td= f.text_field :digitised_on, :class => 'dateinput short', :value => params[:digitised_on] || @item.digitised_on && @item.digitised_on.strftime('%d %B %Y')
+
+      %tr
+        %th= f.label :ingest_notes
+        %td= f.text_area :ingest_notes, :rows => 5
+        - if params[:action] == 'bulk_edit'
+          %td.append
+            %small Append
+            = f.check_box :bulk_edit_append_ingest_notes
+
+      %tr
+        %th= f.label :metadata_imported_on, 'Metadata imported'
+        %td= f.text_field :metadata_imported_on, :class => 'dateinput short', :value => params[:metadata_imported_on] || @item.metadata_imported_on && @item.metadata_imported_on.strftime('%d %B %Y')
+
+      %tr
+        %th= f.label :metadata_exported_on, 'Metadata exported'
+        %td= f.text_field :metadata_exported_on, :class => 'dateinput short', :value => params[:metadata_exported_on] || @item.metadata_exported_on && @item.metadata_exported_on.strftime('%d %B %Y')
+
+      %tr
+        %th= f.label :tracking
+        %td= f.text_field :tracking
+        - if params[:action] == 'bulk_edit'
+          %td.append
+            %small Append
+            = f.check_box :bulk_edit_append_tracking
+
+  %fieldset
+    %legend Admin information
+    %table.form
+      %tr
+        %th= f.label :admin_ids, 'Edit access'
+        %td= f.hidden_field :admin_ids, :data => {:placeholder => 'Choose a user...', :url => users_path, :multiple => true}, :class => 'select2'
+        - if params[:action] == 'bulk_edit'
+          %td.append
+            %small Append
+            = f.check_box :bulk_edit_append_admin_ids
+
+      %tr
+        %th= f.label :user_ids, 'Read/Download access'
+        %td= f.hidden_field :user_ids, :data => {:placeholder => 'Choose a user...', :url => users_path, :multiple => true}, :class => 'select2'
+        - if params[:action] == 'bulk_edit'
+          %td.append
+            %small Append
+            = f.check_box :bulk_edit_append_user_ids
+
+      %tr
+        %th= f.label :access_condition, 'Data access conditions'
+        %td= f.collection_select :access_condition_id, AccessCondition.alpha, :id, :name, {:include_blank => true}, :data => {:placeholder => 'Choose a data access condition...'}, :class => 'select2'
+
+      %tr
+        %th= f.label :access_narrative, 'Data access details'
+        %td= f.text_area :access_narrative, :rows => 5
+        - if params[:action] == 'bulk_edit'
+          %td.append
+            %small Append
+            = f.check_box :bulk_edit_append_access_narrative
+
+      %tr
+        %th= f.label :admin_comment, 'Comments'
+        %td= f.text_area :admin_comment, :rows => 5
+        - if params[:action] == 'bulk_edit'
+          %td.append
+            %small Append
+            = f.check_box :bulk_edit_append_admin_comments

@@ -36,6 +36,7 @@ Nabu::Application.routes.draw do
     resources :items do
       member do
         get :display
+        get :basic_edit
         put :inherit_details
       end
       resources :essences, :only => [:show, :download, :destroy] do

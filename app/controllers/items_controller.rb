@@ -109,6 +109,10 @@ class ItemsController < ApplicationController
     @page_title = 'Nabu - Edit Item'
   end
 
+  def basic_edit
+    @page_title = 'Nabu - Basic Edit Item'
+  end
+
   def destroy
     response = ItemDestructionService.new(@item, params[:delete_essences]).destroy
 
