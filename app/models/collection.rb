@@ -243,10 +243,13 @@ class Collection < ActiveRecord::Base
     end
     cite += ", #{items.map(&:originated_on).compact.min.try(:year)}"
     cite += '; ' unless cite == ""
-    cite += "<i>#{sanitize(title)}</i>, "
+    cite += "<i>#{sanitize(title)}</i> (#{identifier}), "
     cite += "Digital collection managed by PARADISEC. "
-    cite += " #{full_path}"
-    cite += " #{Date.today}."
+    if doi
+      cite += " DOI: #{doi}"
+    else
+      cite += " #{full_path}"
+    end
     cite
   end
 
