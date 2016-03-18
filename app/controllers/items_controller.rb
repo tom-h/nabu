@@ -68,6 +68,9 @@ class ItemsController < ApplicationController
   end
 
   def show
+    # WIP: Do prev_item, next_item
+    @item = @collection.items.includes(:next_item, :admins, :users, :subject_languages, :content_languages, :countries, :operator, :collector, collection: [:languages, :countries], item_agents: [:user, :agent_role]).find_by_identifier(params[:id])
+    Rails.logger.info "DONE EAGER LOADING"
     @page_title = "Nabu - #{@item.title}"
     @num_files = @item.essences.length
     @files = @item.essences.page(params[:files_page]).per(params[:files_per_page])
