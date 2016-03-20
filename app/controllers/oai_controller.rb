@@ -1,5 +1,6 @@
 class OaiController < ApplicationController
   def item
+    # binding.pry
     # Remove controller and action from the options.  Rails adds them automatically.
     options = params.delete_if { |k,v| %w{controller action}.include?(k) }
     provider = ItemProvider.new
