@@ -142,7 +142,7 @@ class Collection < ActiveRecord::Base
     %w{identifier title collector_sortname university_name created_at}
   end
 
-  searchable do
+  searchable(include: [:university, :collector, :operator, :field_of_research, :languages, :countries, :admins]) do
     # Things we want to perform full text search on
     text :title
     text :identifier, :as => :identifier_textp
@@ -192,8 +192,14 @@ class Collection < ActiveRecord::Base
     string :languages, :multiple => true do
       languages.map(&:name)
     end
+    string :language_codes, :multiple => true do
+      languages.map(&:code)
+    end
     string :countries, :multiple => true do
       countries.map(&:name)
+    end
+    string :country_codes, :multiple => true do
+      countries.map(&:code)
     end
     float :north_limit
     float :south_limit
@@ -257,7 +263,7 @@ class Collection < ActiveRecord::Base
     (east_limit && east_limit != 0)
   end
 
-  def center_coordinate
+  def center_coordinate(item_counts)
     if has_coordinates
       if east_limit < west_limit
         long = 180 + (west_limit + east_limit) / 2
@@ -269,7 +275,7 @@ class Collection < ActiveRecord::Base
         :lng => long,
         :title => title,
         :id => identifier,
-        :items => items.count,
+        :items => item_counts[id],
       }
     end
   end
@@ -280,6 +286,10 @@ class Collection < ActiveRecord::Base
 
   def csv_languages
     languages.map(&:name).join(';')
+  end
+
+  def csv_full_grant_identifiers
+    grants.map(&method(:full_grant_identifier)).join(';')
   end
 
   def oai_language
@@ -316,7 +326,7 @@ class Collection < ActiveRecord::Base
                 xml.value full_path
               end
               xml.physical 'type' => 'postalAddress' do
-                xml.addressPart 'PARADISEC Sydney, Department of Linguistics, second floor Transient Building F12, Fisher Road, The University of Sydney, Camperdown Campus, NSW 2006, AUSTRALIA, Phone: +61 2 9351 2002', 'type' => 'text'
+                xml.addressPart 'PARADISEC Sydney Unit: Sydney Conservatorium of Music, Rm 3019, Building C41, The University of Sydney, NSW, 2006, Phone +61 2 9351 1279. PARADISEC Melbourne Unit: School of Languages and Linguistics, University of Melbourne, +61 2 8344 8952 | PARADISEC Canberra Unit: College of Asia and the Pacific, The Australian National University, +61 2 6125 6115', 'type' => 'text'
               end
             end
           end
@@ -418,9 +428,6 @@ class Collection < ActiveRecord::Base
             xml.address do
               xml.electronic 'type' => 'url' do
                 xml.value collector.full_path
-              end
-              xml.physical 'type' => 'postalAddress' do
-                xml.addressPart collector.name + ' c/o PARADISEC, Department of Linguistics, The University of Sydney', 'type' => 'text'
               end
             end
           end

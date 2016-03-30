@@ -1,5 +1,5 @@
 source 'https://rubygems.org'
-
+ruby '2.2.4'
 gem 'rails', '4.2.5'
 
 # Databases
@@ -31,7 +31,7 @@ gem 'activeadmin', '~> 1.0.0.pre2'
 
 # Authentications
 gem 'devise', '~> 3.5.3'
-gem 'cancancan', '~> 1.10'
+gem 'cancancan', '~> 1.13.1'
 
 # Database improvements
 gem 'squeel', '~> 1.2.3'
@@ -57,6 +57,7 @@ gem 'capistrano-unicorn'
 
 # Logging
 gem 'rollbar'
+gem 'newrelic_rpm'
 
 # Misc
 gem 'progress_bar'
@@ -65,7 +66,8 @@ gem 'quiet_assets'
 gem 'roo', '~> 2.1.0'
 # Unpublished version used for ability to use StringIO. https://github.com/roo-rb/roo-xls/pull/7
 gem 'roo-xls', :github => 'roo-rb/roo-xls', :ref => '0a5ef88'
-gem 'rake'
+gem 'streamio-ffmpeg'
+gem 'rake', '< 11.0'
 
 # Image processing
 gem 'rmagick'

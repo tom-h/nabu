@@ -202,7 +202,13 @@ namespace :archive do
         end
 
         # extract media metadata from file
-        import_metadata(directory, file, item, extension, force_update)
+        begin
+          import_metadata(directory, file, item, extension, force_update)
+        rescue => e
+          puts "WARNING: file #{file} skipped - error importing metadata [#{e.message}]" if verbose
+          puts " >> #{e.backtrace}"
+          next
+        end
       end
     end
     puts "===" if verbose
@@ -299,7 +305,20 @@ namespace :archive do
   desc "Perform image transformations for all image essences"
   task :transform_images => :environment do
     batch_size = Integer(ENV['IMAGE_TRANSFORMER_BATCH_SIZE'] || 100)
-    BatchImageTransformerService.run(batch_size)
+    verbose = true
+    BatchImageTransformerService.run(batch_size, verbose)
+  end
+
+  desc "Update catalog details of items"
+  task :update_item_catalogs => :environment do
+    offline_template = OfflineTemplate.new
+    BatchItemCatalogService.run(offline_template)
+  end
+
+  desc "Transcode essence files into required formats"
+  task :transcode_essence_files => :environment do
+    batch_size = Integer(ENV['TRANSCODE_ESSENCE_FILES_BATCH_SIZE'] || 100)
+    BatchTranscodeEssenceFileService.run(batch_size)
   end
 
   # HELPERS
@@ -364,7 +383,7 @@ namespace :archive do
     end
 
     #attempt to generate derived files such as lower quality versions or thumbnails, continue even if this fails
-    generate_derived_files(full_file_path, item, extension, essence, media)
+    generate_derived_files(full_file_path, item, essence, extension, media)
 
     # update essence entry with metadata from file
     begin

@@ -41,6 +41,7 @@
 #  doi                     :string(255)
 #
 
+# FIXME: This includes this module within Object. That's bad.
 include ActionView::Helpers::SanitizeHelper
 class Item < ActiveRecord::Base
   include IdentifiableByDoi
@@ -180,8 +181,8 @@ class Item < ActiveRecord::Base
   end
 
   def prefill
-    return unless collection
     return unless new_record?
+    return unless collection
 
     self.university_id ||= collection.university_id
     self.collector_id ||= collection.collector_id
@@ -240,7 +241,7 @@ class Item < ActiveRecord::Base
     %w{full_identifier title collector_sortname updated_at language}
   end
 
-  searchable do
+  searchable(include: [:content_languages, :subject_languages, :countries, :data_categories, :essences, :collection, :collector, :university, :operator, :discourse_type, :agents, :admins, :users]) do
     # Things we want to perform full text search on
     text :title
     text :identifier, :as => :identifier_textp
@@ -332,11 +333,17 @@ class Item < ActiveRecord::Base
     string :content_languages, :multiple => true do
       content_languages.map(&:name)
     end
+    string :content_language_codes, :multiple => true do
+      content_languages.map(&:code)
+    end
     string :subject_languages, :multiple => true do
       subject_languages.map(&:name)
     end
     string :countries, :multiple => true do
       countries.map(&:name)
+    end
+    string :country_codes, :multiple => true do
+      countries.map(&:code)
     end
     string :data_categories, :multiple => true do
       data_categories.map(&:name)
@@ -387,7 +394,11 @@ class Item < ActiveRecord::Base
         end
     end
     cite += " #{Date.today}."
-    cite += " DOI: #{doi}" if doi
+    if doi
+      cite += " DOI: #{doi}"
+    else
+      cite += " #{full_path}"
+    end
     cite
   end
 
@@ -420,6 +431,26 @@ class Item < ActiveRecord::Base
       result += "#{agent.user.name} (#{agent.agent_role.name});"
     end
     result
+  end
+
+  def csv_filenames
+    essences.map(&:filename).join(';')
+  end
+
+  def csv_mimetypes
+    essences.map(&:mimetype).join(';')
+  end
+
+  def csv_fps_values
+    essences.map(&:fps).join(';')
+  end
+
+  def csv_samplerates
+    essences.map(&:samplerate).join(';')
+  end
+
+  def csv_channel_counts
+    essences.map(&:channels).join(';')
   end
 
   # OAI-MPH mappings for OLAC
@@ -479,7 +510,7 @@ class Item < ActiveRecord::Base
         xml.tag! 'dc:coverage', location,  'xsi:type' => 'dcterms:Box'
       end
 
-      item_data_categories.each do |cat|
+      item_data_categories.includes(:data_category).each do |cat|
         case cat.data_category.name
         when 'historical reconstruction', 'historical_text'
           xml.tag! 'dc:subject', 'xsi:type' => 'olac:linguistic-field',  'olac:code' => 'historical_linguistics'

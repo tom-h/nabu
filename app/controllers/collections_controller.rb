@@ -17,16 +17,21 @@ class CollectionsController < ApplicationController
       return
     end
 
-    @search = Collection.solr_search do
+    @search = Collection.solr_search(include: [:collector, :countries, :languages, :university]) do
       fulltext params[:search]
       facet :language_ids, :country_ids
       facet :collector_id, :limit => 100
 
-      with(:language_ids, params[:language_id]) if params[:language_id].present?
-      with(:country_ids, params[:country_id]) if params[:country_id].present?
+      with(:language_codes, params[:language_code]) if params[:language_code].present?
+      with(:country_codes, params[:country_code]) if params[:country_code].present?
       with(:collector_id, params[:collector_id]) if params[:collector_id].present?
 
-      with(:private, false) unless current_user && current_user.admin?
+      unless current_user && current_user.admin?
+        any_of do
+          with(:private, false)
+          with(:admin_ids, current_user.id) if current_user
+        end
+      end
       sort_column(Collection).each do |c|
         order_by c, sort_direction
       end
@@ -36,8 +41,9 @@ class CollectionsController < ApplicationController
     respond_to do |format|
       format.html
       if can? :search_csv, Collection
+        # This uses attributes that an HTML request doesn't use. Some attributes here ought to be eagerly loaded but aren't.
         format.csv do
-          fields = [:identifier, :title, :description, :collector_name, :operator_name, :university_name, :csv_languages, :csv_countries, :region, :north_limit, :south_limit, :west_limit, :east_limit, :field_of_research_name, :grant_identifier, :funding_body_names, :access_condition_name, :access_narrative]
+          fields = [:identifier, :title, :description, :collector_name, :operator_name, :university_name, :csv_languages, :csv_countries, :region, :north_limit, :south_limit, :west_limit, :east_limit, :field_of_research_name, :csv_full_grant_identifiers, :funding_body_names, :access_condition_name, :access_narrative]
           send_data @search.results.to_csv({:headers => fields, :only => fields}, :col_sep => ','), :type => "text/csv; charset=utf-8; header=present"
         end
       end
@@ -46,7 +52,17 @@ class CollectionsController < ApplicationController
 
   def advanced_search
     @page_title = 'Nabu - Advanced Search Collections'
-    do_search
+    @search = build_advanced_search(params)
+    respond_to do |format|
+      format.html
+      if can? :search_csv, Collection
+        # This uses attributes that an HTML request doesn't use. Some attributes here ought to be eagerly loaded but aren't.
+        format.csv do
+          fields = [:identifier, :title, :description, :collector_name, :operator_name, :university_name, :csv_languages, :csv_countries, :region, :north_limit, :south_limit, :west_limit, :east_limit, :field_of_research_name, :csv_full_grant_identifiers, :funding_body_names, :access_condition_name, :access_narrative]
+          send_data @search.results.to_csv({:headers => fields, :only => fields}, :col_sep => ','), :type => "text/csv; charset=utf-8; header=present"
+        end
+      end
+    end
   end
 
   def new
@@ -58,7 +74,7 @@ class CollectionsController < ApplicationController
     @num_items_ready = @collection.items.where{ digitised_on != nil }.count
     @num_essences = Essence.where(:item_id => @collection.items).count
 
-    @items = @collection.items.page(params[:items_page]).per(params[:items_per_page])
+    @items = @collection.items.includes(:access_condition, :collection).page(params[:items_page]).per(params[:items_per_page])
 
     if params[:sort]
       @items = @items.order("#{params[:sort]} #{params[:direction]}")
@@ -87,7 +103,7 @@ class CollectionsController < ApplicationController
     @page_title = "Nabu - Edit Collection"
     @num_items = @collection.items.count
 
-    @items = @collection.items.order(:identifier).page(params[:items_page]).per(params[:items_per_page])
+    @items = @collection.items.includes(:access_condition, :collection).order(:identifier).page(params[:items_page]).per(params[:items_per_page])
   end
 
   def destroy
@@ -147,7 +163,7 @@ class CollectionsController < ApplicationController
     @page_title = 'Nabu - Collections Bulk Update'
     @collection = Collection.new
 
-    do_search
+    @search = build_advanced_search(params)
   end
 
 
@@ -189,7 +205,7 @@ class CollectionsController < ApplicationController
     if invalid_record
       @page_title = 'Nabu - Collections Bulk Update'
       @collection = Collection.new
-      do_search
+      @search = build_advanced_search(params)
       render :action => 'bulk_edit'
     else
       flash[:notice] = 'Collections were successfully updated.'
@@ -301,10 +317,8 @@ class CollectionsController < ApplicationController
     end
   end
 
-  def do_search
-    @fields = Sunspot::Setup.for(Collection).fields
-    @text_fields = Sunspot::Setup.for(Collection).all_text_fields
-    @search = Collection.solr_search do
+  def build_advanced_search(params)
+    Collection.solr_search(include: [:collector, :countries, :languages, :university]) do
       # Full text search
       Sunspot::Setup.for(Collection).all_text_fields.each do |field|
         next if params[field.name].blank?
@@ -366,7 +380,12 @@ class CollectionsController < ApplicationController
         end
       end
 
-      with(:private, false) unless current_user && current_user.admin?
+      unless current_user && current_user.admin?
+        any_of do
+          with(:private, false)
+          with(:admin_ids, current_user.id) if current_user
+        end
+      end
       sort_column(Collection).each do |c|
         order_by c, sort_direction
       end

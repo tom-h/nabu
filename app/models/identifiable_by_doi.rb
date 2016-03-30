@@ -7,8 +7,7 @@ module IdentifiableByDoi
           xml.tag! 'creatorName', collector_name
         end
       end
-      #TODO: replace with NABU/Paradisec identifier key
-      xml.tag! 'identifier', '10.5072/00/bcndhj78437hjk', identifierType: 'DOI'
+      xml.tag! 'identifier', '10.4225/72/bcndhj78437hjk', identifierType: 'DOI'
       xml.tag! 'titles' do
         xml.tag! 'title', title
       end
@@ -16,9 +15,9 @@ module IdentifiableByDoi
       # Items are the only type which contain the true publication date, so prefer that, but fall back to the date it was added to Nabu
       publicationYear = case
 			when is_a?(Item)
-			  originated_on
+			  originated_on || created_at
 			when is_a?(Essence)
-			  item.originated_on
+			  item.originated_on || created_at
 			else
 			  created_at
 			end.year
@@ -30,7 +29,7 @@ module IdentifiableByDoi
           xml.tag! 'contributorName', collector_name
         end
 
-        if respond_to?(:university_name)
+        if respond_to?(:university_name) && university_name.present?
           xml.tag! 'contributor', contributorType: 'DataCollector' do
             xml.tag! 'contributorName', university_name
           end

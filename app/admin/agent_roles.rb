@@ -1,8 +1,11 @@
 ActiveAdmin.register AgentRole do
   menu :parent => "Other Entities"
-  config.sort_order = "name"
+  config.sort_order = "name_asc"
 
   before_destroy :check_dependent
+
+  # Don't filter by item_agents
+  filter :name
 
   controller do
     def check_dependent(object)
