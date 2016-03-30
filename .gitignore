@@ -11,3 +11,5 @@ rerun.txt
 .DS_Store
 db/legacy/
 public/system/
+solr/default/data/
+managed-schema

@@ -33,7 +33,7 @@ Nabu::Application.configure do
   # Do not compress assets
   config.assets.compress = false
 
-  config.assets.precompile += %w([^_].*.css *.scss)
+  config.assets.precompile += %w( screen.css ie.css print.css active_admin.css )
   config.assets.compile = true # recompile at runtime
 
   # Expands the lines which load the assets

@@ -5,17 +5,15 @@ gem 'rails', '4.2.5'
 # Databases
 gem 'mysql2'
 
-group :assets do
-  gem 'coffee-rails', '~> 4.1.1'
-  gem 'sass-rails', '~> 5.0'
-  gem 'compass-rails', '>= 2.0.4'
-  gem 'compass-blueprint'
+gem 'coffee-rails', '~> 4.1.1'
+gem 'sass-rails', '~> 5.0'
+gem 'compass-rails', '>= 2.0.4'
+gem 'compass-blueprint'
 
-  gem 'therubyracer'
-  gem 'libv8'
+gem 'therubyracer'
+gem 'libv8'
 
-  gem 'uglifier', '>= 1.0.3'
-end
+gem 'uglifier', '>= 1.0.3'
 
 # Views
 gem 'jquery-rails'
@@ -104,6 +102,7 @@ group :development do
   gem 'binding_of_caller'
   gem 'better_errors'
   gem 'rubocop'
+
 end
 
 group :test do

@@ -4,17 +4,17 @@
 guard 'bundler' do
   watch('Gemfile')
 end
-
-
-guard 'sunspot' do
-  watch('Gemfile.lock')
-  watch('config/sunspot.yml')
-end
-
-guard 'sunspot', :environment => 'test' do
-  watch('Gemfile.lock')
-  watch('config/sunspot.yml')
-end
+# guard-sunspot does not support guard 2.x
+#
+# guard 'sunspot' do
+#   watch('Gemfile.lock')
+#   watch('config/sunspot.yml')
+# end
+#
+# guard 'sunspot', :environment => 'test' do
+#   watch('Gemfile.lock')
+#   watch('config/sunspot.yml')
+# end
 
 guard 'rspec', :cmd => 'spring rspec' do
   watch(%r{^spec/.+_spec\.rb$})

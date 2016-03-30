@@ -19,7 +19,7 @@ class Country < ActiveRecord::Base
   end
 
   has_many :countries_languages
-  has_many :languages, :through => :countries_languages, :dependent => :restrict
+  has_many :languages, :through => :countries_languages, :dependent => :restrict_with_error
 
   has_one :latlon_boundary
 end
