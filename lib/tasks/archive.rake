@@ -96,13 +96,6 @@ namespace :archive do
         # Action: Leave as-is.
         next unless File.file? "#{upload_directory}/#{file}"
 
-        # Action: Move to rejected folder, assuming it is not currently uploading.
-        # skip files of size 0 bytes
-        unless File.size?("#{upload_directory}/#{file}")
-          puts "WARNING: file #{file} skipped, since it is empty" if verbose
-          next
-        end
-
         # Action: Leave as-is.
         # skip files that can't be read
         unless File.readable?("#{upload_directory}/#{file}")
@@ -114,6 +107,13 @@ namespace :archive do
         # Skip files that are currently uploading
         last_updated = File.stat("#{upload_directory}/#{file}").mtime
         if (Time.now - last_updated) < 60*10
+          next
+        end
+
+        # Action: Move to rejected folder, assuming it is not currently uploading.
+        # skip files of size 0 bytes
+        unless File.size?("#{upload_directory}/#{file}")
+          puts "WARNING: file #{file} skipped, since it is empty" if verbose
           next
         end
 
