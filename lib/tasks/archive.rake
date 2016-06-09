@@ -93,35 +93,35 @@ namespace :archive do
       # by matching the pattern
       # "#{collection_id}-#{item_id}-xxx.xxx"
       dir_contents.each do |file|
-        # Action: Leave as-is.
+        # Action:
         next unless File.file? "#{upload_directory}/#{file}"
 
-        # Action: Leave as-is.
+        # Action:
         # skip files that can't be read
         unless File.readable?("#{upload_directory}/#{file}")
           puts "ERROR: file #{file} skipped, since it's not readable" if verbose
           next
         end
 
-        # Action: Leave as-is.
+        # Action:
         # Skip files that are currently uploading
         last_updated = File.stat("#{upload_directory}/#{file}").mtime
         if (Time.now - last_updated) < 60*10
           next
         end
 
-        # Action: Move to rejected folder, assuming it is not currently uploading.
+        # Action:
         # skip files of size 0 bytes
         unless File.size?("#{upload_directory}/#{file}")
           puts "WARNING: file #{file} skipped, since it is empty" if verbose
           next
         end
 
-        # Action: Move to rejected folder.
+        # Action:
         basename, extension, coll_id, item_id, collection, item = parse_file_name(file)
         next unless (collection && item)
 
-        # Action: Move to rejected folder.
+        # Action:
         # skip files with item_id longer than 30 chars, because OLAC can't deal with them
         if item_id.length > 30
           puts "WARNING: file #{file} skipped - item id longer than 30 chars (OLAC incompatible)" if verbose
@@ -130,7 +130,7 @@ namespace :archive do
 
         puts '---------------------------------------------------------------'
 
-        # Action: Move to rejected folder.
+        # Action:
         # make sure the archive directory for the collection and item exists
         # and move the file there
         begin
@@ -141,7 +141,7 @@ namespace :archive do
           next
         end
 
-        # Action: Leave as-is.
+        # Action:
         begin
           FileUtils.cp(upload_directory + file, destination_path + file)
         rescue
@@ -156,8 +156,8 @@ namespace :archive do
           FileUtils.mv(destination_path + file, destination_path + "/" + basename + "-PDSC_ADMIN." + extension)
         end
 
-        # Action: If it's PDSC_ADMIN, move the file
-        # Action: If it fails to import, move to rejected.
+        # Action:
+        # Action:
         # files of the pattern "#{collection_id}-#{item_id}-xxx-PDSC_ADMIN.xxx"
         # will be copied, but not added to the list of imported files in Nabu.
         if basename.split('-').last != "PDSC_ADMIN"
