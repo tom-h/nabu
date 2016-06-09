@@ -362,20 +362,22 @@ namespace :archive do
       FileUtils.mv(destination_path + file, destination_path + "/" + basename + "-PDSC_ADMIN." + extension)
     end
 
-    # Action: If it's PDSC_ADMIN, move the file
-    # Action: If it fails to import, move to rejected.
+    # Action: Move to catalog.
     # files of the pattern "#{collection_id}-#{item_id}-xxx-PDSC_ADMIN.xxx"
     # will be copied, but not added to the list of imported files in Nabu.
-    if basename.split('-').last != "PDSC_ADMIN"
-      # extract media metadata from file
-      puts "Inspecting file #{file}..."
-      begin
-        import_metadata(destination_path, file, item, extension, force_update)
-      rescue => e
-        puts "WARNING: file #{file} skipped - error importing metadata [#{e.message}]" if verbose
-        puts " >> #{e.backtrace}"
-        return :leave_as_is
-      end
+    if basename.split('-').last == "PDSC_ADMIN"
+      return :move_to_catalog
+    end
+
+    # extract media metadata from file
+    puts "Inspecting file #{file}..."
+    begin
+      import_metadata(destination_path, file, item, extension, force_update)
+    rescue => e
+      # Action: Move to rejected.
+      puts "WARNING: file #{file} skipped - error importing metadata [#{e.message}]" if verbose
+      puts " >> #{e.backtrace}"
+      return :leave_as_is
     end
 
     :move_to_catalog
