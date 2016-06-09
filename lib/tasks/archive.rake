@@ -352,17 +352,6 @@ namespace :archive do
       return process_admin_import
     end
 
-    # Uncommon errors 3.
-    # Action: Leave as-is.
-    begin
-      FileUtils.cp(upload_directory + file, destination_path + file)
-    rescue
-      puts "WARNING: file #{file} skipped - not able to read it or write to #{destination_path + file}" if verbose
-      return :leave_as_is
-    end
-
-    puts "INFO: file #{file} copied into archive at #{destination_path}"
-
     # extract media metadata from file
     puts "Inspecting file #{file}..."
     begin
@@ -372,6 +361,19 @@ namespace :archive do
       puts "WARNING: file #{file} skipped - error importing metadata [#{e.message}]" if verbose
       puts " >> #{e.backtrace}"
       return :move_to_rejected
+    end
+
+    if action == :move_to_catalog
+      # Uncommon errors 3.
+      # Action: Leave as-is.
+      begin
+        FileUtils.cp(upload_directory + file, destination_path + file)
+      rescue
+        puts "WARNING: file #{file} skipped - not able to read it or write to #{destination_path + file}" if verbose
+        return :leave_as_is
+      end
+
+      puts "INFO: file #{file} copied into archive at #{destination_path}"
     end
 
     action
