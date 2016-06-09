@@ -347,6 +347,37 @@ namespace :archive do
       return :leave_as_is
     end
 
+    # Handle admin files separately
+    if basename.split('-').last == "CAT" || basename.split('-').last == "df" || basename.split('-').last == "PDSC_ADMIN"
+      return process_admin_import
+    end
+
+    # Uncommon errors 3.
+    # Action: Leave as-is.
+    begin
+      FileUtils.cp(upload_directory + file, destination_path + file)
+    rescue
+      puts "WARNING: file #{file} skipped - not able to read it or write to #{destination_path + file}" if verbose
+      return :leave_as_is
+    end
+
+    puts "INFO: file #{file} copied into archive at #{destination_path}"
+
+    # extract media metadata from file
+    puts "Inspecting file #{file}..."
+    begin
+      action = import_metadata(destination_path, file, item, extension, force_update)
+    rescue => e
+      # Action: Move to rejected.
+      puts "WARNING: file #{file} skipped - error importing metadata [#{e.message}]" if verbose
+      puts " >> #{e.backtrace}"
+      return :move_to_rejected
+    end
+
+    action
+  end
+
+  def process_admin_import
     # Uncommon errors 3.
     # Action: Leave as-is.
     begin
@@ -366,23 +397,8 @@ namespace :archive do
     # Action: Move to catalog.
     # files of the pattern "#{collection_id}-#{item_id}-xxx-PDSC_ADMIN.xxx"
     # will be copied, but not added to the list of imported files in Nabu.
-    if basename.split('-').last == "PDSC_ADMIN"
-      move_to_catalog(upload_directory, file)
-      return :move_to_catalog
-    end
-
-    # extract media metadata from file
-    puts "Inspecting file #{file}..."
-    begin
-      action = import_metadata(destination_path, file, item, extension, force_update)
-    rescue => e
-      # Action: Move to rejected.
-      puts "WARNING: file #{file} skipped - error importing metadata [#{e.message}]" if verbose
-      puts " >> #{e.backtrace}"
-      return :move_to_rejected
-    end
-
-    action
+    move_to_catalog(upload_directory, file)
+    :move_to_catalog
   end
 
   def parse_file_name(file, file_extension=nil)
