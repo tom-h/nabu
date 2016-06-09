@@ -79,7 +79,7 @@ namespace :archive do
   desc 'Import files into the archive'
   task :import_files => :environment do
     verbose = ENV['VERBOSE'] ? true : false
-    # Always update metadata, unlike the update_files task
+    # Always update metadata
     force_update = true
 
     # find essence files in Nabu::Application.config.upload_directories
@@ -168,66 +168,6 @@ namespace :archive do
       end
     end
   end
-
-  desc 'Update essence metadata of existing files in the archive'
-  task :update_files => :environment do
-    verbose = ENV['VERBOSE'] ? true : false
-    # Default to not forcing an update of metadata
-    force_update = (ENV['FORCE'] == 'true')
-    ignore_update_file_prefixes = (ENV['IGNORE_UPDATE_FILE_PREFIX'] || '').split(':')
-
-    # find essence files in Nabu::Application.config.archive_directory
-    archive = Nabu::Application.config.archive_directory
-
-    # get all subdirectories in archive
-    puts "---------------------------------------------------------------"
-    puts "Gathering all subdirectories in the archive..."
-    subdirs = directories(archive)
-    puts "...done"
-
-    # extract metadata from each essence file in each directory
-    subdirs.each do |directory|
-      puts "===" if verbose
-      puts "---------------------------------------------------------------" if verbose
-      puts "Working through directory #{directory}" if verbose
-      dir_contents = Dir.entries(directory)
-      dir_contents.each do |file|
-        next unless File.file? "#{directory}/#{file}"
-        puts "---------------------------------------------------------------" if verbose
-        puts "Inspecting file #{file}..."
-        basename, extension, coll_id, item_id, collection, item = parse_file_name(file)
-        unless collection && item
-          puts "ERROR: skipping file #{file} - does not relate to an item #{coll_id}-#{item_id}"
-          next
-        end
-
-        # skip PDSC_ADMIN and rename CAT & df files
-        next if basename.split('-').last == "PDSC_ADMIN"
-        if basename.split('-').last == "CAT" || basename.split('-').last == "df"
-          FileUtils.mv(directory + "/" + file, directory + "/" + basename + "-PDSC_ADMIN." + extension)
-          next
-        end
-
-        if ignore_update_file_prefixes.any? {|prefix| basename.start_with?(prefix) }
-          puts "WARNING: file #{file} skipped - suspected of being crash-prone"
-          next
-        end
-
-        # extract media metadata from file
-        begin
-          import_metadata(directory, file, item, extension, force_update)
-        rescue => e
-          puts "WARNING: file #{file} skipped - error importing metadata [#{e.message}]" if verbose
-          puts " >> #{e.backtrace}"
-          next
-        end
-      end
-    end
-    puts "===" if verbose
-    puts "Update Files finished." if verbose
-    puts "===" if verbose
-  end
-
 
   desc 'Create all missing PDSC_ADMIN files'
   task :admin_files => :environment do

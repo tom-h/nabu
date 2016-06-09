@@ -42,18 +42,6 @@ spring rake sunspot:reindex
 
 ## Production Tasks
 
-import archive files
-
-``` bash
-RAILS_ENV=production bundle exec rake archive:update_files
-```
-
-check if all files that have been uploaded are ok:
-``` bash
-cd /srv/www/nabu/current
-RAILS_ENV=production bundle exec rake --trace archive:update_files > log/update_files.log
-```
-
 check if all *-CAT-PDSC_ADMIN.xml files exist and create if necessary:
 ``` bash
 cd /srv/www/nabu/current

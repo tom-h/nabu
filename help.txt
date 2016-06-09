@@ -92,14 +92,3 @@ cap unicorn:stop
 ps aux #kill any remaining unicorns
 cap unicorn:start
 ```
-
-
-Update essence metadata of existing files in the archive
-``` bash
-ssh catalog.paradisec.org.au
-cd /srv/www/nabu/current/
-screen
-su deploy
-VERBOSE=true
-RAILS_ENV=production /usr/local/bin/bundle exec rake archive:update_files
-```
