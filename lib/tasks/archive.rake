@@ -49,7 +49,7 @@ namespace :archive do
     # "#{collection_id}-#{item_id}-xxx.xxx"
     dir_contents.each do |file|
       next unless File.file? "#{Nabu::Application.config.scan_directory}/#{file}"
-      basename, _, coll_id, item_id, collection, item = ParseFileNameService.parse_file_name(file, 'wav')
+      basename, _, coll_id, item_id, collection, item = ParseFileNameService.parse_file_name(verbose, file, 'wav')
       next if !collection || !item
 
       # if metadata files exist, skip to the next file
@@ -113,7 +113,7 @@ namespace :archive do
           next
         end
 
-        basename, extension, coll_id, item_id, collection, item = ParseFileNameService.parse_file_name(file)
+        basename, extension, coll_id, item_id, collection, item = ParseFileNameService.parse_file_name(verbose, file)
         next unless (collection && item)
 
         # skip files with item_id longer than 30 chars, because OLAC can't deal with them

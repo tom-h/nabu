@@ -1,7 +1,5 @@
 module ParseFileNameService
-  def self.parse_file_name(file, file_extension=nil)
-    verbose = ENV['VERBOSE'] ? true : false
-
+  def self.parse_file_name(verbose, file, file_extension=nil)
     extension = file.split('.').last
     return if file_extension && file_extension != extension
     basename = File.basename(file, "." + extension)
