@@ -284,8 +284,7 @@ namespace :archive do
     case action
     # if everything went well, remove file from original directory
     when :move_to_catalog
-      FileUtils.rm(upload_directory + file)
-      puts "...done"
+      # Don't do anything - it's already handled.
     when :leave_as_is
       # Don't do anything
     when :move_to_rejected
@@ -368,6 +367,7 @@ namespace :archive do
     # files of the pattern "#{collection_id}-#{item_id}-xxx-PDSC_ADMIN.xxx"
     # will be copied, but not added to the list of imported files in Nabu.
     if basename.split('-').last == "PDSC_ADMIN"
+      move_to_catalog(upload_directory, file)
       return :move_to_catalog
     end
 
@@ -480,17 +480,24 @@ namespace :archive do
       essence.save!
       # Nabu Import Messages 2.
       puts "SUCCESS: file #{file} metadata imported into Nabu"
+      move_to_catalog(upload_directory, file)
       :move_to_catalog
     when essence.changed?
       puts "WARNING: file #{file} metadata is different to DB - use 'FORCE=true archive:update_file' to update"
       puts essence.changes.inspect
+      move_to_catalog(upload_directory, file)
       :move_to_catalog
     else
       # essence already exists, and is unchanged - don't do anything or log anything.
+      move_to_catalog(upload_directory, file)
       :move_to_catalog
     end
   end
 
+  def move_to_catalog(upload_directory, file)
+    FileUtils.rm(upload_directory + file)
+    puts "...done"
+  end
 
   # this method tries to avoid regenerating any files that already exist
   def generate_derived_files(full_file_path, item, essence, extension, media)
