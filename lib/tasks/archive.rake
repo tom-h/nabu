@@ -196,20 +196,6 @@ namespace :archive do
 
   # HELPERS
 
-  def directories(path)
-    data = []
-    Dir.foreach(path) do |entry|
-      next if (entry == '..' || entry == '.' || entry == '.snapshot' || entry == '.server_backups')
-      full_path = File.join(path, entry)
-      if File.directory?(full_path)
-        data << full_path
-        data += directories(full_path)
-      end
-    end
-    data
-  end
-
-
   def parse_file_name(file, file_extension=nil)
     verbose = ENV['VERBOSE'] ? true : false
 
