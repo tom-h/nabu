@@ -95,7 +95,7 @@ namespace :archive do
       # by matching the pattern
       # "#{collection_id}-#{item_id}-xxx.xxx"
       dir_contents.each do |file|
-        # Action:
+        # Action: Leave as-is.
         next unless File.file? "#{upload_directory}/#{file}"
 
         # Nabu Import Messages 9.
@@ -106,7 +106,7 @@ namespace :archive do
           next
         end
 
-        # Action:
+        # Action: Leave as-is.
         # Skip files that are currently uploading
         last_updated = File.stat("#{upload_directory}/#{file}").mtime
         if (Time.now - last_updated) < 60*10
