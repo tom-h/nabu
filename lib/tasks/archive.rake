@@ -280,22 +280,36 @@ namespace :archive do
   end
 
   def import_file(verbose, force_update, upload_directory, file)
+    action = process_import_and_determine_action(verbose, force_update, upload_directory, file)
+    case action
+    # if everything went well, remove file from original directory
+    when :move_to_catalog
+      FileUtils.rm(upload_directory + file)
+      puts "...done"
+    when :leave_as_is
+      # Don't do anything
+    else
+      fail "Shouldn't happen"
+    end
+  end
+
+  def process_import_and_determine_action(verbose, force_update, upload_directory, file)
     # Action: Leave as-is.
-    return unless File.file? "#{upload_directory}/#{file}"
+    return :leave_as_is unless File.file? "#{upload_directory}/#{file}"
 
     # Nabu Import Messages 9.
     # Action: Leave as-is.
     # skip files that can't be read
     unless File.readable?("#{upload_directory}/#{file}")
       puts "ERROR: file #{file} skipped, since it's not readable" if verbose
-      return
+      return :leave_as_is
     end
 
     # Action: Leave as-is.
     # Skip files that are currently uploading
     last_updated = File.stat("#{upload_directory}/#{file}").mtime
     if (Time.now - last_updated) < 60*10
-      return
+      return :leave_as_is
     end
 
     # Nabu Import Messages 8.
@@ -303,19 +317,19 @@ namespace :archive do
     # skip files of size 0 bytes
     unless File.size?("#{upload_directory}/#{file}")
       puts "WARNING: file #{file} skipped, since it is empty" if verbose
-      return
+      return :leave_as_is
     end
 
     # Action: Move to rejected folder.
     basename, extension, coll_id, item_id, collection, item = parse_file_name(file)
-    return unless (collection && item)
+    return :leave_as_is unless (collection && item)
 
     # Uncommon errors 1.
     # Action: Move to rejected folder.
     # skip files with item_id longer than 30 chars, because OLAC can't deal with them
     if item_id.length > 30
       puts "WARNING: file #{file} skipped - item id longer than 30 chars (OLAC incompatible)" if verbose
-      return
+      return :leave_as_is
     end
 
     puts '---------------------------------------------------------------'
@@ -329,7 +343,7 @@ namespace :archive do
       FileUtils.mkdir_p(destination_path)
     rescue
       puts "WARNING: file #{file} skipped - not able to create directory #{destination_path}" if verbose
-      return
+      return :leave_as_is
     end
 
     # Uncommon errors 3.
@@ -338,7 +352,7 @@ namespace :archive do
       FileUtils.cp(upload_directory + file, destination_path + file)
     rescue
       puts "WARNING: file #{file} skipped - not able to read it or write to #{destination_path + file}" if verbose
-      return
+      return :leave_as_is
     end
 
     puts "INFO: file #{file} copied into archive at #{destination_path}"
@@ -360,13 +374,11 @@ namespace :archive do
       rescue => e
         puts "WARNING: file #{file} skipped - error importing metadata [#{e.message}]" if verbose
         puts " >> #{e.backtrace}"
-        return
+        return :leave_as_is
       end
     end
 
-    # if everything went well, remove file from original directory
-    FileUtils.rm(upload_directory + file)
-    puts "...done"
+    :move_to_catalog
   end
 
   def parse_file_name(file, file_extension=nil)
