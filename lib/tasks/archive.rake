@@ -169,41 +169,6 @@ namespace :archive do
     end
   end
 
-  desc 'Delete collection with all items'
-  task :delete_collection, [:coll_id] => :environment do |t, args|
-    coll_id = args[:coll_id]
-    # force case sensitivity in MySQL - see https://dev.mysql.com/doc/refman/5.7/en/case-sensitivity.html
-    collection = Collection.where('BINARY identifier = ?', coll_id).first
-    unless collection
-      abort("ERROR: no such collection #{coll_id}")
-    end
-    items = collection.items.size
-    print "Do you really want to delete collection #{coll_id} with all its #{items} items? (y/n) "
-    input = STDIN.gets.strip
-    if input != 'y'
-      abort("...aborted collection deletion.")
-    end
-    collection.items.each do |item|
-      puts "Deleting item #{item.collection.identifier}-#{item.identifier}"
-      item.destroy
-    end
-    # reload collection so it loses its now deleted item links
-    # force case sensitivity in MySQL - see https://dev.mysql.com/doc/refman/5.7/en/case-sensitivity.html
-    collection = Collection.where('BINARY identifier = ?', coll_id).first
-    puts "Deleting collection #{collection.identifier}"
-    collection.destroy
-    puts "...done"
-
-    # now check files in directory
-    archive = Nabu::Application.config.archive_directory
-
-    files = Dir.glob(archive + "#{coll_id}/*")
-    if files.length > 0
-      puts "\nNOW PLEASE REMOVE ARCHIVE FILES AND FOLDERS FOR COLLECTION #{coll_id}:"
-      puts files
-    end
-  end
-
   desc "Mint DOIs for objects that don't have one"
   task :mint_dois => :environment do
     batch_size = Integer(ENV['MINT_DOIS_BATCH_SIZE'] || 100)

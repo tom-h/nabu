@@ -40,14 +40,6 @@ gzip -dc nabu.sql.gz | mysql -u root nabu_devel
 spring rake sunspot:reindex
 ```
 
-## Production Tasks
-
-delete a collection with all its items:
-``` bash
-cd /srv/www/nabu/current
-RAILS_ENV=production bundle exec rake archive:delete_collection[PA1]
-
-
 # NEW Ethnologue data
 
 Download the latest version of the following tables from
