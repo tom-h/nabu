@@ -104,7 +104,7 @@ namespace :archive do
         # skip files of size 0 bytes
         unless File.size?("#{upload_directory}/#{file}")
           puts "WARNING: file #{file} skipped, since it is empty" if verbose
-          next
+          success = false
         end
 
         # skip files that can't be read
@@ -114,12 +114,12 @@ namespace :archive do
         end
 
         basename, extension, coll_id, item_id, collection, item = parse_file_name(file)
-        next unless (collection && item)
+        success = false unless (collection && item)
 
         # skip files with item_id longer than 30 chars, because OLAC can't deal with them
         if item_id.length > 30
           puts "WARNING: file #{file} skipped - item id longer than 30 chars (OLAC incompatible)" if verbose
-          next
+          success = false
         end
 
         puts '---------------------------------------------------------------'
@@ -132,11 +132,11 @@ namespace :archive do
 
         # files of the pattern "#{collection_id}-#{item_id}-xxx-PDSC_ADMIN.xxx"
         # will be copied, but not added to the list of imported files in Nabu.
-        if basename.split('-').last != "PDSC_ADMIN"
+        if basename.split('-').last != "PDSC_ADMIN" && success
           # extract media metadata from file
           puts "Inspecting file #{file}..."
           begin
-            import_metadata(destination_path, file, item, extension, force_update)
+            success = import_metadata(destination_path, file, item, extension, force_update)
           rescue => e
             puts "WARNING: file #{file} skipped - error importing metadata [#{e.message}]" if verbose
             puts " >> #{e.backtrace}"
@@ -144,21 +144,26 @@ namespace :archive do
           end
         end
 
-        # make sure the archive directory for the collection and item exists
-        # and move the file there
-        begin
-          destination_path = Nabu::Application.config.archive_directory + "#{coll_id}/#{item_id}/"
-          FileUtils.mkdir_p(destination_path)
-        rescue
-          puts "WARNING: file #{file} skipped - not able to create directory #{destination_path}" if verbose
-          next
-        end
+        # if meta data import was successful then we move to archive else move to rejected
+        if success
+          # make sure the archive directory for the collection and item exists
+          # and move the file there
+          begin
+            destination_path = Nabu::Application.config.archive_directory + "#{coll_id}/#{item_id}/"
+            FileUtils.mkdir_p(destination_path)
+          rescue
+            puts "WARNING: file #{file} skipped - not able to create directory #{destination_path}" if verbose
+            next
+          end
 
-        begin
-          FileUtils.cp(upload_directory + file, destination_path + file)
-        rescue
-          puts "WARNING: file #{file} skipped - not able to read it or write to #{destination_path + file}" if verbose
-          next
+          begin
+            FileUtils.cp(upload_directory + file, destination_path + file)
+          rescue
+            puts "WARNING: file #{file} skipped - not able to read it or write to #{destination_path + file}" if verbose
+            next
+          end
+        else
+          # TODO: copy to the rejected place
         end
 
         puts "INFO: file #{file} copied into archive at #{destination_path}"
@@ -399,7 +404,7 @@ namespace :archive do
     media = Nabu::Media.new full_file_path
     unless media
       puts "ERROR: was not able to parse #{full_file_path} of type #{extension} - skipping"
-      return
+      return false
     end
 
     # find essence file in Nabu DB; if there is none, create a new one
@@ -423,21 +428,23 @@ namespace :archive do
     rescue => e
       puts "ERROR: unable to process file #{file} - skipping"
       puts" #{e}"
-      return
+      return false
     end
 
     unless essence.valid?
       puts "ERROR: invalid metadata for #{file} of type #{extension} - skipping"
       essence.errors.each { |field, msg| puts "#{field}: #{msg}" }
-      return
+      return false
     end
     if essence.new_record? || (essence.changed? && force_update)
       essence.save!
       puts "SUCCESS: file #{file} metadata imported into Nabu"
+      return true
     end
     if essence.changed? && !force_update
       puts "WARNING: file #{file} metadata is different to DB - use 'FORCE=true archive:update_file' to update"
       puts essence.changes.inspect
+      return true
     end
   end
 
