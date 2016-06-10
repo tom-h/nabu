@@ -95,6 +95,12 @@ namespace :archive do
       dir_contents.each do |file|
         next unless File.file? "#{upload_directory}/#{file}"
 
+        # Skip files that are currently uploading
+        last_updated = File.stat("#{upload_directory}/#{file}").mtime
+        if (Time.now - last_updated) < 60*10
+          next
+        end
+
         # skip files of size 0 bytes
         unless File.size?("#{upload_directory}/#{file}")
           puts "WARNING: file #{file} skipped, since it is empty" if verbose
@@ -104,12 +110,6 @@ namespace :archive do
         # skip files that can't be read
         unless File.readable?("#{upload_directory}/#{file}")
           puts "ERROR: file #{file} skipped, since it's not readable" if verbose
-          next
-        end
-
-        # Skip files that are currently uploading
-        last_updated = File.stat("#{upload_directory}/#{file}").mtime
-        if (Time.now - last_updated) < 60*10
           next
         end
 
