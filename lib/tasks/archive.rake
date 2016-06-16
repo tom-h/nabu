@@ -101,7 +101,9 @@ namespace :archive do
         success = true
 
         # Action: Leave as-is.
-        next unless File.file? "#{upload_directory}/#{file}"
+        unless File.file? "#{upload_directory}/#{file}"
+          next
+        end
 
         # Nabu Import Messages 9.
         # Action: Leave as-is.
