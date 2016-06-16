@@ -148,11 +148,13 @@ namespace :archive do
           # TODO: catch if mv failed to rename the file. Raise an error.
         end
 
+        file_is_non_admin = basename.split('-').last != "PDSC_ADMIN"
+
         # Action: If it's PDSC_ADMIN, move the file
         # Action: If it fails to import, move to rejected.
         # files of the pattern "#{collection_id}-#{item_id}-xxx-PDSC_ADMIN.xxx"
         # will be copied, but not added to the list of imported files in Nabu.
-        if basename.split('-').last != "PDSC_ADMIN" && success
+        if file_is_non_admin && success
           # extract media metadata from file
           puts "Inspecting file #{file}..."
           begin
