@@ -123,7 +123,9 @@ namespace :archive do
 
         # Action: Move to rejected folder.
         basename, extension, coll_id, item_id, collection, item = parse_file_name(file)
-        next unless (collection && item)
+        unless collection && item
+          next
+        end
 
         # Uncommon errors 1.
         # Action: Move to rejected folder.
