@@ -157,13 +157,13 @@ namespace :archive do
           basename, _extension, _coll_id, _item_id, _collection, _item = parse_file_name(file)
         end
 
-        file_is_non_admin = basename.split('-').last != "PDSC_ADMIN"
+        is_non_admin_file = basename.split('-').last != "PDSC_ADMIN"
 
         # Action: If it's PDSC_ADMIN, move the file
         # Action: If it fails to import, move to rejected.
         # files of the pattern "#{collection_id}-#{item_id}-xxx-PDSC_ADMIN.xxx"
         # will be copied, but not added to the list of imported files in Nabu.
-        if file_is_non_admin && success
+        if is_non_admin_file && success
           # extract media metadata from file
           puts "Inspecting file #{file}..."
           begin
