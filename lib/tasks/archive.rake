@@ -152,6 +152,9 @@ namespace :archive do
             puts "WARNING: file #{file} skipped - not able to rename within upload folder" if verbose
             next
           end
+
+          file = basename + "-PDSC_ADMIN." + extension
+          basename, _extension, _coll_id, _item_id, _collection, _item = parse_file_name(file)
         end
 
         file_is_non_admin = basename.split('-').last != "PDSC_ADMIN"
