@@ -60,8 +60,6 @@ namespace :archive do
       # check if the item's "metadata ready for export" flag is set
       # raise a warning if not and skip file
       if !item.metadata_exportable
-        # Nabu Import Messages 7.
-        # Action: Move to rejected folder.
         puts "ERROR: metadata of item pid=#{coll_id}-#{item_id} is not complete for file #{file} - skipping" if verbose
         next
       end
