@@ -25,10 +25,6 @@ class OfflineTemplate < AbstractController::Base
   #end
 end
 
-class ItemOfflineTemplate < OfflineTemplate
-  attr_accessor :item
-end
-
 # Coding style for log messages:
 # # Only use SUCCESS if an entire action has been completed successfully, not part of the action
 # # Use INFO for progress through part of an action

@@ -1,4 +1,27 @@
 class ExportMetadataService
+  # Inheriting avoids NoMethodError: undefined method `abstract?' for Object:Class
+  class ItemOfflineTemplate < AbstractController::Base
+    # Used for render_to_string
+    include AbstractController::Rendering
+    # Both of the following lines are required for cancan, and have to be in the correct order.
+    include AbstractController::Helpers
+    include CanCan::ControllerAdditions
+
+    attr_accessor :item
+
+    def initialize
+      # No evidence of being required, but probably good practice.
+      super()
+      # Avoids ActionView::MissingTemplate
+      lookup_context.view_paths = Rails.root.join('app', 'views')
+    end
+
+    # CanCan requires a current_user
+    def current_user
+      @current_user ||= User.admins.first
+    end
+  end
+
   def self.run(file, basename, coll_id, item_id, item, verbose)
     export_metadata_service = new(file, basename, coll_id, item_id, item, verbose)
     export_metadata_service.run
