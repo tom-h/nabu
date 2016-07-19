@@ -3,4 +3,4 @@ set :user, 'ubuntu'
 
 set :unicorn_env, 'staging'
 
-set :branch, 'develop'
+set :branch, 'feature/nabu-593'
