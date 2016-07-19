@@ -38,7 +38,7 @@ class ItemProvider < OAI::Provider::Base
   repository_name 'Pacific And Regional Archive for Digital Sources in Endangered Cultures (PARADISEC)'
   repository_url 'http://catalog.paradisec.org.au/oai/item'
   record_prefix 'oai:paradisec.org.au'
-  admin_email 'andrew.grimm+potential_spam_20160719a@terem.com.au'
+  admin_email 'andrew.grimm@terem.com.au'
   sample_id 'AA1-001'
   update_granularity OAI::Const::Granularity::HIGH
   # FIXME: Doesn't include collection.
@@ -49,7 +49,6 @@ class ItemProvider < OAI::Provider::Base
       xml.tag! 'archiveURL', 'http://catalog.paradisec.org.au'
       xml.tag! 'participant', 'name' => 'Nick Thieberger', 'role' => 'Project Director',  'email' => 'thien@unimelb.edu.au'
       xml.tag! 'participant', 'name' => 'Linda Barwick',  'role' => 'Project Manager', 'email' => 'Linda.Barwick@arts.usyd.edu.au'
-      xml.tag! 'participant', 'name' => 'Andrew Grimm', 'role' => 'Developer', 'email' => 'andrew.grimm+potential_spam_20160719a@terem.com.au'
       xml.tag! 'institution', 'A consortium made up of the University of Melbourne, University of Sydney, and the Australian National University'
       xml.tag! 'institutionURL', 'http://paradisec.org.au'
       xml.tag! 'shortLocation', 'Melbourne, Sydney, Canberra, Australia'
