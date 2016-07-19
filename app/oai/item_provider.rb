@@ -38,7 +38,7 @@ class ItemProvider < OAI::Provider::Base
   repository_name 'Pacific And Regional Archive for Digital Sources in Endangered Cultures (PARADISEC)'
   repository_url 'http://catalog.paradisec.org.au/oai/item'
   record_prefix 'oai:paradisec.org.au'
-  admin_email 'thien@unimelb.edu.au'
+  admin_email 'andrew.grimm@terem.com.au'
   sample_id 'AA1-001'
   update_granularity OAI::Const::Granularity::HIGH
   # FIXME: Doesn't include collection.
