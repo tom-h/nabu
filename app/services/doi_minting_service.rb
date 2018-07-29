@@ -46,11 +46,34 @@ class DoiMintingService
     end
   end
 
+  def update_DOI_URL(doi, new_url)
+    uri = URI(url_for(:update))
+    uri.query = URI.encode_www_form(app_id: @app_id, shared_secret: @shared_secret, url: new_url, doi: doi)
+    connection = Net::HTTP.new(uri.host, uri.port)
+    connection.use_ssl = true
+    request = Net::HTTP::Post.new(uri.request_uri)
+    request["Content-Type"] = "application/xml"
+    request.body = doi_xml
+    response = connection.request(request)
+    if response.code.to_i >= 200 && response.code.to_i < 300
+      content = JSON.parse(response.body)
+      if content['response']['responsecode'] == AndsResponse::UPDATE_SUCCESS
+        puts "Successfully replaced URL for DOI #{doi} => #{new_url}"
+      else
+        puts "Failed to replace url for existing DOI:#{doi} - Server returned a bad response: #{content['response']['responsecode']} / #{content['response']['message']}"
+        puts content['response']['verbosemessage']
+      end
+    else
+      puts "Failed to replace url for DOI:#{doi} - Server returned a bad response: #{response.code} / #{response.message}"
+    end
+  end
+  
   private
 
   def url_for(action)
     "#{@base_url}/#{action}.#{@format}/"
   end
+
 end
 
 =begin
